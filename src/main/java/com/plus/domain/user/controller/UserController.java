@@ -1,0 +1,16 @@
+package com.plus.domain.user.controller;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.plus.domain.user.service.UserService;
+
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/users")
+public class UserController {
+
+	private final UserService userService;
+}
