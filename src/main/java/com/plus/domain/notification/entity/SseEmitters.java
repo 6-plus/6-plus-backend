@@ -1,6 +1,7 @@
 package com.plus.domain.notification.entity;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,6 +31,20 @@ public class SseEmitters {
 			throw new IOException(e);
 		}
 		return emitter;
+	}
+
+	public void send(List<Long> ids, String sendNotificationBeforeDrawStart) {
+		emitters.forEach((id, emitter) -> {
+			if (ids.contains(id)) {
+				try {
+					emitter.send(SseEmitter.event()
+						.name("notification")
+						.data(sendNotificationBeforeDrawStart));
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
 	}
 
 	private void setEmitterConfig(Long userId) {

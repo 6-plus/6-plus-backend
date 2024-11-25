@@ -12,12 +12,14 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Draw extends BaseTimestamped {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,4 +32,16 @@ public class Draw extends BaseTimestamped {
 	private DrawType drawType;
 	@Embedded
 	private Product product;
+
+	@Builder
+	public Draw(Long id, Integer totalWinner, LocalDateTime startTime, LocalDateTime endTime, LocalDateTime resultTime,
+		DrawType drawType, Product product) {
+		this.id = id;
+		this.totalWinner = totalWinner;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.resultTime = resultTime;
+		this.drawType = drawType;
+		this.product = product;
+	}
 }
