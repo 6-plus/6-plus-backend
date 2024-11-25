@@ -4,5 +4,5 @@ import com.plus.domain.draw.entity.UserDraw;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserDrawRepository extends JpaRepository<UserDraw, Long>, UserDrawRepositoryQuery {
+public interface UserDrawRepository extends JpaRepository<UserDraw, Long> {
 }
