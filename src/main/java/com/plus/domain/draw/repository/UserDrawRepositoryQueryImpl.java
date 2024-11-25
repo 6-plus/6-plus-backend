@@ -17,12 +17,12 @@ import static com.plus.domain.user.entity.QUser.user;
 
 @RequiredArgsConstructor
 public class UserDrawRepositoryQueryImpl implements UserDrawRepositoryQuery {
-	private final JPAQueryFactory jPAQueryFactory;
+	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
 	public Page<DrawSearchResponseDto> findAllDrawByUserId(Long userId, Pageable pageable) {
 		QUserDraw drawUser = new QUserDraw("drawUser");
-		var drawSearches = jPAQueryFactory
+		var drawSearches = jpaQueryFactory
 			.select(Projections.constructor(
 				DrawSearchResponseDto.class,
 				draw.id, draw.totalWinner, user.countDistinct(), draw.startTime, draw.endTime, draw.resultTime,
