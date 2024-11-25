@@ -9,6 +9,7 @@ import java.util.List;
 import com.plus.domain.draw.dto.response.DrawSearchResponseDto;
 import com.plus.domain.draw.entity.QUserDraw;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,13 @@ public class UserDrawRepositoryQueryImpl implements UserDrawRepositoryQuery {
 
 	@Override
 	public List<DrawSearchResponseDto> findAllDrawByUserId(Long userId, int page, int size) {
+		return findQuery(page, size)
+			.where(userDraw.userId.eq(userId))
+			.orderBy(draw.endTime.asc())
+			.fetch();
+	}
+
+	private JPAQuery<DrawSearchResponseDto> findQuery(int page, int size) {
 		QUserDraw drawUser = new QUserDraw("drawUser");
 		return jpaQueryFactory
 			.select(Projections.constructor(
@@ -27,14 +35,11 @@ public class UserDrawRepositoryQueryImpl implements UserDrawRepositoryQuery {
 				draw.drawType, draw.product
 			))
 			.from(userDraw)
-			.where(userDraw.userId.eq(userId))
 			.leftJoin(draw).on(userDraw.drawId.eq(draw.id))
 			.leftJoin(drawUser).on(draw.id.eq(drawUser.drawId))
 			.leftJoin(user).on(drawUser.userId.eq(user.id))
 			.groupBy(draw.id)
-			.orderBy(draw.endTime.asc())
-			.offset((long) (page - 1) * size)
-			.limit(size)
-			.fetch();
+			.offset((long)(page - 1) * size)
+			.limit(size);
 	}
 }
