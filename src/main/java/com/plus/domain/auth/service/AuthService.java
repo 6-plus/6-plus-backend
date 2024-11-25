@@ -1,70 +1,76 @@
 package com.plus.domain.auth.service;
 
-import java.security.Key;
-import java.util.Base64;
-import java.util.Date;
-
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.plus.domain.common.JwtHelper;
+import com.plus.domain.auth.dto.SigninRequestDto;
+import com.plus.domain.auth.dto.SignupRequestDto;
+import com.plus.domain.auth.exception.InvalidRequestException;
+import com.plus.domain.security.JwtUtil;
+import com.plus.domain.security.UserDetailsImpl;
+import com.plus.domain.user.entity.User;
 import com.plus.domain.user.enums.UserRole;
+import com.plus.domain.user.repository.UserRepository;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthService {
 
-	private final JwtHelper jwtHelper;
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
+	private final JwtUtil jwtUtil;
+	private final AuthenticationManager authenticationManager;
 
-	private static final String BEARER_PREFIX = "Bearer ";
-	private static final long TOKEN_TIME = 60 * 60 * 1000L;
-
-	@Value("${jwt.secret.key}")
-	private String secretKey;
-	private Key key;
-	private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-
-	@PostConstruct
-	public void init() {
-		byte[] bytes = Base64.getDecoder().decode(secretKey);
-		key = Keys.hmacShaKeyFor(bytes);
-	}
-
-	public String createToken(Long userId, String email, UserRole userRole, String nickname) {
-		Date date = new Date();
-
-		return BEARER_PREFIX +
-			Jwts.builder()
-				.setSubject(String.valueOf(userId))
-				.claim("email", email)
-				.claim("userRole", userRole)
-				.claim("nickname", nickname)
-				.setExpiration(new Date(date.getTime() + TOKEN_TIME))
-				.setIssuedAt(date) // 발급일
-				.signWith(key, signatureAlgorithm) // 암호화 알고리즘
-				.compact();
-	}
-
-	public String substringToken(String tokenValue) {
-		if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
-			return tokenValue.substring(7);
+	//회원가입
+	public void signup(SignupRequestDto signupRequestDto) {
+		if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
+			throw new InvalidRequestException("이미 존재하는 이메일입니다.");
 		}
-		throw new IllegalArgumentException("Not Found Token");
+		if (userRepository.existsByNickname(signupRequestDto.getNickName())) {
+			throw new InvalidRequestException("이미 존재하는 닉네임입니다.");
+		}
+
+		String encodedPassword = passwordEncoder.encode(signupRequestDto.getPassword());
+
+		// 'USER' 역할을 명시적으로 부여
+		UserRole userRole = UserRole.USER;  // 기본적으로 'USER' 역할 부여
+
+		User newUser = new User(
+			signupRequestDto.getEmail(),
+			encodedPassword,
+			signupRequestDto.getNickName(),
+			signupRequestDto.getPhoneNumber(),
+			userRole
+		);
+
+		// 사용자 저장
+		userRepository.save(newUser);
+
 	}
 
-	public Claims extractClaims(String token) {
-		return Jwts.parserBuilder()
-			.setSigningKey(key)
-			.build()
-			.parseClaimsJws(token)
-			.getBody();
+	//로그인
+	public String signin(SigninRequestDto signinRequestDto) {
+		// Authentication 객체 생성
+		UsernamePasswordAuthenticationToken authenticationToken =
+			new UsernamePasswordAuthenticationToken(
+				signinRequestDto.getEmail(), signinRequestDto.getPassword());
+
+		// 인증 처리
+		Authentication authentication = authenticationManager.authenticate(authenticationToken);
+
+		// 인증된 사용자 정보 가져오기
+		UserDetailsImpl userDetails = (UserDetailsImpl)authentication.getPrincipal();
+		User user = userDetails.getUser();
+
+		// JWT 토큰 생성 및 반환
+		return jwtUtil.createToken(user.getId(), user.getEmail(), user.getUserRole());
 	}
+
 }

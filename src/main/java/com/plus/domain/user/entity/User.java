@@ -24,8 +24,17 @@ public class User extends BaseTimestamped {
 	@Column(unique = true)
 	private String email;
 	private String password;
+	@Column(unique = true)
 	private String nickname;
 	private String phoneNumber;
 	@Enumerated(EnumType.STRING)
 	private UserRole userRole;
+
+	public User(String email, String password, String nickname, String phoneNumber, UserRole userRole) {
+		this.email = email;
+		this.password = password;
+		this.nickname = nickname;
+		this.phoneNumber = phoneNumber;
+		this.userRole = userRole;
+	}
 }
