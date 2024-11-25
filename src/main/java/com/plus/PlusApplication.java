@@ -11,8 +11,8 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 @EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 public class PlusApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(PlusApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(PlusApplication.class, args);
+    }
 
 }
