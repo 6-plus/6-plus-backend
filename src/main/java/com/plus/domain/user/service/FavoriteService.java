@@ -9,6 +9,7 @@ import com.plus.domain.user.repository.FavoriteRepository;
 import com.plus.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,7 @@ public class FavoriteService {
     private final DrawRepository drawRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public FavoriteSaveResponseDto saveFavorite(Long drawId, String email) {
         Draw draw = drawRepository.findById(drawId)
                 .orElseThrow(() -> new IllegalArgumentException("Draw not found with ID: " + drawId));
@@ -34,4 +36,11 @@ public class FavoriteService {
     }
 
 
+//    //관심 응모 삭제 sercive package
+//    public FavoriteDeleteResponseDto deleteFavorite(Long favoriteId) {
+//        favoriteRepository.deleteById(favoriteId);
+//        return null;
+//
+//
+//    }
 }
