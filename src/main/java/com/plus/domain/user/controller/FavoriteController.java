@@ -17,8 +17,8 @@ public class FavoriteController {
 
     //TODO : Favorite C,R,D
     //관심응모 생성
-    @PostMapping("/{drawrId}/favorites")
-    public FavoriteSaveResponseDto saveFavorite(@PathVariable(name = "drawrId") Long drawrId) {
+    @PostMapping("/{drawId}/favorites")
+    public FavoriteSaveResponseDto saveFavorite(@PathVariable(name = "drawId") Long drawrId) {
         String email = "testUser1@gmail.com";
 
         return favoriteService.saveFavorite(drawrId, email);
