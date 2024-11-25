@@ -1,6 +1,7 @@
 package com.plus.domain.draw.controller;
 
 import com.plus.domain.draw.dto.response.DrawSearchResponseDto;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,11 +23,11 @@ public class DrawController {
 
 	@GetMapping("/my")
 	public ResponseEntity<Page<DrawSearchResponseDto>> searchMyDraw(
-			@RequestParam Long userId,
-			@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+		@RequestParam Long userId,
+		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
 		return ResponseEntity
-				.status(HttpStatus.OK)
-				.body(drawService.searchMyDraw(userId, pageable));
+			.status(HttpStatus.OK)
+			.body(drawService.searchMyDraw(userId, pageable));
 	}
 }
