@@ -1,9 +1,9 @@
-package com.plus.domain.draw.controller;
+package com.plus.domain.review.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.plus.domain.draw.service.ReviewService;
+import com.plus.domain.review.service.ReviewService;
 
 import lombok.RequiredArgsConstructor;
 

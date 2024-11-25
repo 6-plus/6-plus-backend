@@ -1,4 +1,4 @@
-package com.plus.domain.draw.entity;
+package com.plus.domain.review.entity;
 
 import com.plus.domain.common.BaseTimestamped;
 

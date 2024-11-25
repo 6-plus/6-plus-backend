@@ -1,8 +1,8 @@
-package com.plus.domain.draw.service;
+package com.plus.domain.review.service;
 
 import org.springframework.stereotype.Service;
 
-import com.plus.domain.draw.repository.ReviewRepository;
+import com.plus.domain.review.repository.ReviewRepository;
 
 import lombok.RequiredArgsConstructor;
 
