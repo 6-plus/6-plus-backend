@@ -1,15 +1,15 @@
 package com.plus.domain.draw.controller;
 
-import com.plus.domain.draw.dto.response.DrawSearchResponseDto;
+import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.plus.domain.draw.dto.response.DrawSearchResponseDto;
 import com.plus.domain.draw.service.DrawService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,12 +22,13 @@ public class DrawController {
 	private final DrawService drawService;
 
 	@GetMapping("/my")
-	public ResponseEntity<Page<DrawSearchResponseDto>> searchMyDraw(
+	public ResponseEntity<List<DrawSearchResponseDto>> searchMyDraw(
 		@RequestParam Long userId,
-		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "10") int size
 	) {
 		return ResponseEntity
 			.status(HttpStatus.OK)
-			.body(drawService.searchMyDraw(userId, pageable));
+			.body(drawService.searchMyDraw(userId, page, size));
 	}
 }

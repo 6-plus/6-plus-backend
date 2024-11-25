@@ -1,17 +1,15 @@
 package com.plus.domain.draw.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.plus.domain.draw.dto.response.DrawSearchResponseDto;
+import com.plus.domain.draw.repository.DrawRepository;
 import com.plus.domain.draw.repository.UserDrawRepository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import com.plus.domain.draw.repository.DrawRepository;
-
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +19,7 @@ public class DrawService {
 	private final UserDrawRepository userDrawRepository;
 
 	@Transactional(readOnly = true)
-	public Page<DrawSearchResponseDto> searchMyDraw(Long userId, Pageable pageable) {
-		return userDrawRepository.findAllDrawByUserId(userId, pageable);
+	public List<DrawSearchResponseDto> searchMyDraw(Long userId, int page, int size) {
+		return userDrawRepository.findAllDrawByUserId(userId, page, size);
 	}
 }

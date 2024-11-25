@@ -1,5 +1,11 @@
 package com.plus.domain.draw.repository;
 
+import static com.plus.domain.draw.entity.QDraw.*;
+import static com.plus.domain.draw.entity.QUserDraw.*;
+import static com.plus.domain.user.entity.QUser.*;
+
+import java.util.List;
+
 import com.plus.domain.draw.dto.response.DrawSearchResponseDto;
 import com.plus.domain.draw.entity.QUserDraw;
 import com.querydsl.core.types.Projections;
@@ -7,22 +13,14 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
-
-import static com.plus.domain.draw.entity.QDraw.draw;
-import static com.plus.domain.draw.entity.QUserDraw.userDraw;
-import static com.plus.domain.user.entity.QUser.user;
-
 @RequiredArgsConstructor
 public class UserDrawRepositoryQueryImpl implements UserDrawRepositoryQuery {
 	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
-	public Page<DrawSearchResponseDto> findAllDrawByUserId(Long userId, Pageable pageable) {
+	public List<DrawSearchResponseDto> findAllDrawByUserId(Long userId, int page, int size) {
 		QUserDraw drawUser = new QUserDraw("drawUser");
-		var drawSearches = jpaQueryFactory
+		return jpaQueryFactory
 			.select(Projections.constructor(
 				DrawSearchResponseDto.class,
 				draw.id, draw.totalWinner, user.countDistinct(), draw.startTime, draw.endTime, draw.resultTime,
@@ -35,10 +33,8 @@ public class UserDrawRepositoryQueryImpl implements UserDrawRepositoryQuery {
 			.leftJoin(user).on(drawUser.userId.eq(user.id))
 			.groupBy(draw.id)
 			.orderBy(draw.endTime.asc())
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
+			.offset((long) (page - 1) * size)
+			.limit(size)
 			.fetch();
-
-		return PageableExecutionUtils.getPage(drawSearches, pageable, drawSearches::size);
 	}
 }
