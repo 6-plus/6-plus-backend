@@ -1,4 +1,4 @@
-CREATE TABLE user
+CREATE TABLE IF NOT EXISTS user
 (
     id           BIGINT NOT NULL AUTO_INCREMENT,
     created_at   DATETIME(6),
@@ -11,7 +11,7 @@ CREATE TABLE user
     PRIMARY KEY (id)
 ) ENGINE = InnoDB;
 
-CREATE TABLE draw
+CREATE TABLE IF NOT EXISTS draw
 (
     id                  BIGINT NOT NULL AUTO_INCREMENT,
     created_at          DATETIME(6),
@@ -27,7 +27,7 @@ CREATE TABLE draw
     PRIMARY KEY (id)
 ) ENGINE = InnoDB;
 
-CREATE TABLE review
+CREATE TABLE IF NOT EXISTS review
 (
     id         BIGINT NOT NULL AUTO_INCREMENT,
     created_at DATETIME(6),
@@ -41,7 +41,7 @@ CREATE TABLE review
     FOREIGN KEY (draw_id) REFERENCES draw (id)
 ) ENGINE = InnoDB;
 
-CREATE TABLE user_draw
+CREATE TABLE IF NOT EXISTS user_draw
 (
     id         BIGINT NOT NULL AUTO_INCREMENT,
     user_id    BIGINT,
@@ -53,7 +53,7 @@ CREATE TABLE user_draw
     FOREIGN KEY (draw_id) REFERENCES draw (id)
 ) ENGINE = InnoDB;
 
-CREATE TABLE favorite_draw
+CREATE TABLE IF NOT EXISTS favorite_draw
 (
     id      BIGINT NOT NULL AUTO_INCREMENT,
     user_id BIGINT,
