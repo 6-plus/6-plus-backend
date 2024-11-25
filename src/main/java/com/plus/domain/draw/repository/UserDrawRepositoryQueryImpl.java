@@ -34,7 +34,7 @@ public class UserDrawRepositoryQueryImpl implements UserDrawRepositoryQuery {
 			.leftJoin(drawUser).on(draw.id.eq(drawUser.drawId))
 			.leftJoin(user).on(drawUser.userId.eq(user.id))
 			.groupBy(draw.id)
-			.orderBy(draw.createdAt.desc())
+			.orderBy(draw.endTime.asc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
