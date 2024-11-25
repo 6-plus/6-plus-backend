@@ -16,10 +16,9 @@ import lombok.RequiredArgsConstructor;
 public class DrawService {
 
 	private final DrawRepository drawRepository;
-	private final UserDrawRepository userDrawRepository;
 
 	@Transactional(readOnly = true)
 	public List<DrawSearchResponseDto> searchMyDraw(Long userId, int page, int size) {
-		return userDrawRepository.findAllDrawByUserId(userId, page, size);
+		return drawRepository.findAllDrawByUserId(userId, page, size);
 	}
 }

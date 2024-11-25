@@ -15,7 +15,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class UserDrawRepositoryQueryImpl implements UserDrawRepositoryQuery {
+public class DrawRepositoryQueryImpl implements DrawRepositoryQuery {
 	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
