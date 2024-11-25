@@ -31,7 +31,7 @@ public class NotificationController {
 	}
 
 	@PostMapping
-	public void addTaskTest() {
+	public void test() {
 		notificationService.addTask(Draw.builder().build());
 	}
 }
