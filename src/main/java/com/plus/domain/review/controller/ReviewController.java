@@ -63,4 +63,15 @@ public class ReviewController {
 			.status(HttpStatus.OK)
 			.body(reviewService.updateReview(userId, reviewId, requestDto));
 	}
+
+	@DeleteMapping("/{reviewId}")
+	public ResponseEntity<String> deleteReview(
+		@RequestParam Long userId,
+		@PathVariable(name = "reviewId") Long reviewId
+	) {
+		reviewService.deleteReview(userId, reviewId);
+		return ResponseEntity
+			.status(HttpStatus.NO_CONTENT)
+			.body("당첨 리뷰가 삭제 되었습니다.");
+	}
 }
