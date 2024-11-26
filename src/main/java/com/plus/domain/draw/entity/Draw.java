@@ -34,9 +34,12 @@ public class Draw extends BaseTimestamped {
 	private Product product;
 
 	@Builder
-	public Draw(Long id, Integer totalWinner, LocalDateTime startTime, LocalDateTime endTime, LocalDateTime resultTime,
-		DrawType drawType, Product product) {
-		this.id = id;
+	public Draw(Integer totalWinner,
+				LocalDateTime startTime,
+				LocalDateTime endTime,
+				LocalDateTime resultTime,
+				DrawType drawType,
+				Product product) {
 		this.totalWinner = totalWinner;
 		this.startTime = startTime;
 		this.endTime = endTime;
