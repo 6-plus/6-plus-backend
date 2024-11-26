@@ -27,7 +27,6 @@ CREATE TABLE IF NOT EXISTS draw
     PRIMARY KEY (id)
 ) ENGINE = InnoDB;
 
-
 CREATE TABLE IF NOT EXISTS notification
 (
     id                BIGINT NOT NULL AUTO_INCREMENT,
