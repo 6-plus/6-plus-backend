@@ -1,12 +1,14 @@
 package com.plus.domain.user.service;
 
+import com.plus.domain.common.exception.FavoriteException;
+import com.plus.domain.common.exception.enums.ExceptionCode;
 import com.plus.domain.draw.entity.Draw;
 import com.plus.domain.draw.repository.DrawRepository;
+import com.plus.domain.security.UserDetailsImpl;
 import com.plus.domain.user.dto.response.FavoriteDeleteResponseDto;
 import com.plus.domain.user.dto.response.FavoriteSaveResponseDto;
 import com.plus.domain.user.dto.response.FavoriteSearchResponseDto;
 import com.plus.domain.user.entity.Favorite;
-import com.plus.domain.user.entity.User;
 import com.plus.domain.user.repository.FavoriteRepository;
 import com.plus.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,51 +18,62 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.plus.domain.common.exception.enums.ExceptionCode.DRAW_NOT_FOUND_OF_FAVORITE;
+import static com.plus.domain.common.exception.enums.ExceptionCode.USER_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class FavoriteService {
 
-    private final FavoriteRepository favoriteRepository;
-    private final DrawRepository drawRepository;
-    private final UserRepository userRepository;
+	private final FavoriteRepository favoriteRepository;
+	private final DrawRepository drawRepository;
+	private final UserRepository userRepository;
 
-    @Transactional
-    public FavoriteSaveResponseDto saveFavorite(Long drawId, Long userId) {
-        Draw draw = drawRepository.findById(drawId)
-                .orElseThrow(() -> new IllegalArgumentException("Draw not found with ID: " + drawId));
+	@Transactional
+	public FavoriteSaveResponseDto saveFavorite(Long drawId, UserDetailsImpl userDetails) {
+		Long userId = userDetails.getUser().getId();
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+		if (!drawRepository.existsById(drawId)) {
+			throw new FavoriteException(DRAW_NOT_FOUND_OF_FAVORITE);
+		}
 
-        Favorite savedFavorite = favoriteRepository.save(Favorite.builder()
-                .drawId(draw.getId())
-                .userId(user.getId())
-                .build());
+		if (!userRepository.existsById(userId)) {
+			throw new FavoriteException(USER_NOT_FOUND);
+		}
 
-        return savedFavorite.toDto();
-    }
+		if (favoriteRepository.existsByUserIdAndDrawId(userId, drawId)) {
+			throw new FavoriteException(ExceptionCode.DUPLICATE_FAVORITE);
+		}
 
-    @Transactional(readOnly = true)
-    public List<FavoriteSearchResponseDto> searchfavorite(Long userId) {
+		Favorite savedFavorite = favoriteRepository.save(Favorite.builder()
+			.drawId(drawId)
+			.userId(userId)
+			.build());
 
-        List<Favorite> res = favoriteRepository.findAllByUserId(userId);
+		return FavoriteSaveResponseDto.from(savedFavorite);
+	}
 
-        List<FavoriteSearchResponseDto> responseDtos = new ArrayList<>();
-        for (Favorite re : res) {
-            Draw draw = drawRepository.findById(re.getDrawId()).get();
-            responseDtos.add(FavoriteSearchResponseDto.from(draw));
-        }
+	@Transactional(readOnly = true)
+	public List<FavoriteSearchResponseDto> searchfavorite(UserDetailsImpl userDetails) {
 
-        return responseDtos;
-    }
+		List<Favorite> res = favoriteRepository.findAllByUserId(userDetails.getUser().getId());
 
-    @Transactional
-    public FavoriteDeleteResponseDto deleteFavorite(Long favoriteId) {
-        favoriteRepository.deleteById(favoriteId);
-        return FavoriteDeleteResponseDto.builder()
-                .message("관심응모가 삭제 되었습니다.")
-                .build();
+		List<FavoriteSearchResponseDto> responseDtos = new ArrayList<>();
+		for (Favorite re : res) {
+			Draw draw = drawRepository.findById(re.getDrawId()).get();
+			responseDtos.add(FavoriteSearchResponseDto.from(draw));
+		}
+
+		return responseDtos;
+	}
+
+	@Transactional
+	public FavoriteDeleteResponseDto deleteFavorite(Long favoriteId) {
+		favoriteRepository.deleteById(favoriteId);
+		return FavoriteDeleteResponseDto.builder()
+			.message("관심응모가 삭제 되었습니다.")
+			.build();
 
 
-    }
+	}
 }

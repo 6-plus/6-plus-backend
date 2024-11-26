@@ -1,6 +1,7 @@
 package com.plus.domain.user.controller;
 
 import com.plus.domain.draw.service.DrawService;
+import com.plus.domain.security.UserDetailsImpl;
 import com.plus.domain.user.dto.response.FavoriteDeleteResponseDto;
 import com.plus.domain.user.dto.response.FavoriteSaveResponseDto;
 import com.plus.domain.user.dto.response.FavoriteSearchResponseDto;
@@ -8,6 +9,7 @@ import com.plus.domain.user.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,17 +25,20 @@ public class FavoriteController {
 
 	@PostMapping("/{drawId}/favorites")
 	public ResponseEntity<FavoriteSaveResponseDto> saveFavorite(
-		@PathVariable(name = "drawId") Long drawId) {
+		@PathVariable(name = "drawId") Long drawId,
+		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
 		return ResponseEntity
 			.status(HttpStatus.CREATED)
-			.body(favoriteService.saveFavorite(drawId, 1L));  // TODO : 나중에 토큰에서 가져와서 넣을 예정
+			.body(favoriteService.saveFavorite(drawId, userDetails));
 	}
 
 	//나의관심응모조회
 	@GetMapping("/favorites/my")
 	public ResponseEntity<List<FavoriteSearchResponseDto>> searchFavorite(
-		@RequestParam Long userId) {
-		List<FavoriteSearchResponseDto> res = favoriteService.searchfavorite(userId);
+		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		List<FavoriteSearchResponseDto> res = favoriteService.searchfavorite(userDetails);
+
 		return ResponseEntity.ok(res);
 	}
 
@@ -43,6 +48,7 @@ public class FavoriteController {
 		@PathVariable(name = "drawId") Long drawId,
 		@PathVariable(name = "favoriteId") Long favoriteId) {
 		FavoriteDeleteResponseDto res = favoriteService.deleteFavorite(favoriteId);
+
 		return ResponseEntity.ok(res);
 	}
 }
