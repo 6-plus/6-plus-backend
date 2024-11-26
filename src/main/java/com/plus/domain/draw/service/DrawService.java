@@ -24,7 +24,7 @@ public class DrawService {
     private final UserRepository userRepository;
 
     @Transactional
-    public DrawSaveResponseDto saveDraw(Long userId, DrawSaveRequestDto requestDto, MultipartFile image) throws IOException {
+    public DrawSaveResponseDto saveDraw(DrawSaveRequestDto requestDto, MultipartFile image) throws IOException {
         //User 권한 확인
 
         //응모 중복 확인 (응모제품명)

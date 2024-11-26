@@ -22,10 +22,9 @@ public class DrawController {
 	private final DrawService drawService;
 
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<DrawSaveResponseDto> saveDraw(@RequestParam Long userId,
-														@RequestPart("requestDto") DrawSaveRequestDto requestDto,
+	public ResponseEntity<DrawSaveResponseDto> saveDraw(@RequestPart("requestDto") DrawSaveRequestDto requestDto,
 														@RequestPart("image") MultipartFile image) throws IOException {
-		DrawSaveResponseDto responseDto = drawService.saveDraw(userId, requestDto, image);
+		DrawSaveResponseDto responseDto = drawService.saveDraw(requestDto, image);
 		return ResponseEntity.ok(responseDto);
 	}
 }
