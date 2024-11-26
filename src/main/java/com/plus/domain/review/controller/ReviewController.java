@@ -7,8 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.plus.domain.review.dto.request.ReviewSaveRequestDto;
+import com.plus.domain.review.dto.request.ReviewUpdateRequestDto;
 import com.plus.domain.review.dto.response.ReviewSaveResponseDto;
 import com.plus.domain.review.dto.response.ReviewSearchResponseDto;
+import com.plus.domain.review.dto.response.ReviewUpdateResponseDto;
 import com.plus.domain.review.service.ReviewService;
 
 import lombok.RequiredArgsConstructor;
@@ -49,5 +51,16 @@ public class ReviewController {
 		return ResponseEntity
 			.status(HttpStatus.OK)
 			.body(reviewService.searchMyReviews(userId, pageable));
+	}
+
+	@PatchMapping("/{reviewId}")
+	public ResponseEntity<ReviewUpdateResponseDto> updateReview(
+		@RequestParam Long userId,
+		@PathVariable(name = "reviewId") Long reviewId,
+		@RequestBody ReviewUpdateRequestDto requestDto
+	) {
+		return ResponseEntity
+			.status(HttpStatus.OK)
+			.body(reviewService.updateReview(userId, reviewId, requestDto));
 	}
 }

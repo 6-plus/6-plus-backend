@@ -32,4 +32,9 @@ public class Review extends BaseTimestamped {
 		this.userId = userId;
 		this.drawId = drawId;
 	}
+
+	public void update(String contents, String image) {
+		this.contents = contents;
+		this.image = image;
+	}
 }
