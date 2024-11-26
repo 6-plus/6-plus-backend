@@ -1,5 +1,15 @@
 package com.plus.domain.draw.service;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.plus.domain.common.exception.ExpectedException;
+import com.plus.domain.common.exception.enums.ExceptionCode;
 import com.plus.domain.draw.dto.request.DrawSaveRequestDto;
 import com.plus.domain.draw.dto.request.DrawSearchRequestDto;
 import com.plus.domain.draw.dto.response.DrawSaveResponseDto;
@@ -9,61 +19,60 @@ import com.plus.domain.draw.entity.Product;
 import com.plus.domain.draw.enums.DrawStatus;
 import com.plus.domain.draw.enums.SortBy;
 import com.plus.domain.draw.repository.DrawRepository;
+import com.plus.domain.notification.service.NotificationService;
+import com.plus.domain.user.entity.User;
+import com.plus.domain.user.enums.UserRole;
 import com.plus.domain.user.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class DrawService {
 
 	private final DrawRepository drawRepository;
-    private final S3Service s3Service;
-    private final UserRepository userRepository;
+	private final S3Service s3Service;
+	private final UserRepository userRepository;
+	private final NotificationService notificationService;
 
-    @Transactional
-    public DrawSaveResponseDto saveDraw(DrawSaveRequestDto requestDto, MultipartFile image) throws IOException {
-        //User 권한 확인
+	@Transactional
+	public DrawSaveResponseDto saveDraw(Long userid, DrawSaveRequestDto requestDto, MultipartFile image) throws
+		IOException {
 
-        //응모 중복 확인 (응모제품명)
+		//User 권한 확인
+		User user = userRepository.findById(userid)
+			.orElseThrow(() -> new ExpectedException(ExceptionCode.NOT_AUTHORIZED));//USER_NOT_FOUND로 변환예정
 
-        // 이미지 업로드
-        String imageUrl = s3Service.upload(image, "image");
+		if (user.getUserRole() != UserRole.ADMIN) {
+			throw new ExpectedException(ExceptionCode.NOT_AUTHORIZED);
+		}
+		//응모 중복 확인 (응모제품명)
+		if (drawRepository.existsByProduct_ProductName(requestDto.getProduct().getProductName())) {
+			throw new ExpectedException(ExceptionCode.DUPLICATE_DRAW_NAME);
+		}
 
-        //save 로직
-        Draw draw = Draw.builder()
-                .totalWinner(requestDto.getTotalWinners())
-                .startTime(requestDto.getStartTime())
-                .endTime(requestDto.getEndTime())
-                .resultTime(requestDto.getResultTime())
-                .drawType(requestDto.getDrawType())
-                .product(new Product(
-                        requestDto.getProduct().getProductName(),
-                        requestDto.getProduct().getProductDescription(),
-                        imageUrl
-                ))
-                .build();
+		// 이미지 업로드
+		String imageUrl = s3Service.upload(image, "image");
 
-        Draw savedDraw = drawRepository.save(draw);
+		//save 로직
+		Draw draw = Draw.builder()
+			.totalWinner(requestDto.getTotalWinners())
+			.startTime(requestDto.getStartTime())
+			.endTime(requestDto.getEndTime())
+			.resultTime(requestDto.getResultTime())
+			.drawType(requestDto.getDrawType())
+			.product(new Product(
+				requestDto.getProduct().getProductName(),
+				requestDto.getProduct().getProductDescription(),
+				imageUrl
+			))
+			.build();
 
-        return DrawSaveResponseDto.builder()
-                .id(savedDraw.getId())
-                .totalWinner(savedDraw.getTotalWinner())
-                .startTime(savedDraw.getStartTime())
-                .endTime(savedDraw.getEndTime())
-                .resultTime(savedDraw.getResultTime())
-                .drawType(savedDraw.getDrawType())
-                .createdAt(savedDraw.getCreatedAt())
-                .updatedAt(savedDraw.getUpdatedAt())
-                .product(savedDraw.getProduct()) // 임베디드 Product 객체도 그대로 반환
-                .build();
-    }
+		draw = drawRepository.save(draw);
+		notificationService.addTask(draw);
+
+		return new DrawSaveResponseDto(draw);
+	}
 
 	@Transactional(readOnly = true)
 	public List<DrawSearchResponseDto> searchMyDraw(Long userId, int page, int size) {
