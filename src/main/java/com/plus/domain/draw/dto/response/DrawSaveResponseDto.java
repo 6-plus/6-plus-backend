@@ -1,49 +1,42 @@
 package com.plus.domain.draw.dto.response;
 
+import java.time.LocalDateTime;
+
 import com.plus.domain.draw.entity.Draw;
 import com.plus.domain.draw.entity.Product;
 import com.plus.domain.draw.enums.DrawType;
-import lombok.*;
 
-import java.time.LocalDateTime;
+import lombok.Getter;
+
 @Getter
 public class DrawSaveResponseDto {
-    private Long id;
+	private Long id;
 
-    private Integer totalWinner;
+	private Integer totalWinner;
 
-    private LocalDateTime startTime;
+	private LocalDateTime startTime;
 
-    private LocalDateTime endTime;
+	private LocalDateTime endTime;
 
-    private LocalDateTime resultTime;
+	private LocalDateTime resultTime;
 
-    private DrawType drawType;
+	private DrawType drawType;
 
-    private LocalDateTime createdAt;
+	private LocalDateTime createdAt;
 
-    private LocalDateTime updatedAt;
+	private LocalDateTime updatedAt;
 
-    private Product product;
+	private Product product;
 
-    @Builder
-    public DrawSaveResponseDto(Long id,
-                               Integer totalWinner,
-                               LocalDateTime startTime,
-                               LocalDateTime endTime,
-                               LocalDateTime resultTime,
-                               DrawType drawType,
-                               LocalDateTime createdAt,
-                               LocalDateTime updatedAt,
-                               Product product) {
-        this.id = id;
-        this.totalWinner = totalWinner;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.resultTime = resultTime;
-        this.drawType = drawType;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.product = product;
-    }
+	public DrawSaveResponseDto(Draw draw) {
+		this.id = draw.getId();
+		this.totalWinner = draw.getTotalWinner();
+		this.startTime = draw.getStartTime();
+		this.endTime = draw.getEndTime();
+		this.resultTime = draw.getResultTime();
+		this.drawType = draw.getDrawType();
+		this.createdAt = draw.getCreatedAt();
+		this.updatedAt = draw.getUpdatedAt();
+		this.product = draw.getProduct();
+	}
 }
