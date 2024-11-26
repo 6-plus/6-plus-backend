@@ -58,4 +58,13 @@ public class ReviewService {
 		review.update(requestDto.getContents(), requestDto.getImage());
 		return new ReviewUpdateResponseDto(reviewRepository.saveAndFlush(review));
 	}
+
+	public void deleteReview(Long userId, Long reviewId) {
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new RuntimeException("존재하지 않는 리뷰 입니다."));
+		if(!Objects.equals(userId, review.getUserId())) {
+			throw new RuntimeException("작성자만 리뷰를 삭제할 수 있습니다.");
+		}
+		reviewRepository.delete(review);
+	}
 }
