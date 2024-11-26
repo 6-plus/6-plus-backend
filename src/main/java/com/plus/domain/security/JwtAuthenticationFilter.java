@@ -63,12 +63,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		String token = jwtUtil.createToken(userId, email, role);
 
 		String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8);
-
+		encodedToken = encodedToken.replaceAll("\\+", "%20");
 		Cookie cookie = new Cookie("Authorization", encodedToken);
 		cookie.setHttpOnly(true);
 		cookie.setSecure(true);
 		cookie.setPath("/");
-		cookie.setMaxAge(60 * 60 * 24);
 
 		response.addCookie(cookie);
 		response.setStatus(HttpServletResponse.SC_OK);
