@@ -25,7 +25,7 @@ public class ReviewService {
 	private final ReviewRepository reviewRepository;
 	private final UserDrawRepository userDrawRepository;
 
-	public ReviewSaveResponseDto saveReview(ReviewSaveRequestDto requestDto, Long drawId, Long userId) {
+	public ReviewSaveResponseDto saveReview(Long userId, Long drawId, ReviewSaveRequestDto requestDto) {
 		if (!userDrawRepository.existsByUserIdAndDrawId(userId, drawId)) {
 			throw new IllegalArgumentException("당첨된 응모의 리뷰만 작성할 수 있습니다.");
 		}
@@ -51,7 +51,7 @@ public class ReviewService {
 	public ReviewUpdateResponseDto updateReview(Long userId, Long reviewId, ReviewUpdateRequestDto requestDto) {
 		Review review = reviewRepository.findById(reviewId)
 			.orElseThrow(() -> new RuntimeException("존재하지 않는 리뷰 입니다."));
-		if(!Objects.equals(userId, review.getUserId())) {
+		if (!Objects.equals(userId, review.getUserId())) {
 			throw new RuntimeException("작성자만 리뷰를 수정할 수 있습니다.");
 		}
 
@@ -62,7 +62,7 @@ public class ReviewService {
 	public void deleteReview(Long userId, Long reviewId) {
 		Review review = reviewRepository.findById(reviewId)
 			.orElseThrow(() -> new RuntimeException("존재하지 않는 리뷰 입니다."));
-		if(!Objects.equals(userId, review.getUserId())) {
+		if (!Objects.equals(userId, review.getUserId())) {
 			throw new RuntimeException("작성자만 리뷰를 삭제할 수 있습니다.");
 		}
 		reviewRepository.delete(review);
