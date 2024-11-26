@@ -12,8 +12,6 @@ import com.plus.domain.auth.dto.SignupRequestDto;
 import com.plus.domain.auth.service.AuthService;
 import com.plus.domain.security.JwtUtil;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -31,17 +29,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/signin")
-	public ResponseEntity<Void> signin(@Valid @RequestBody SigninRequestDto signinRequestDto,
-		HttpServletResponse response) {
-		// 인증 후 토큰 생성
-		String token = authService.signin(signinRequestDto);
-
-		// 쿠키 생성
-		Cookie cookie = jwtUtil.createCookie(token);
-
-		// 응답에 쿠키 추가
-		response.addCookie(cookie);
-
+	public ResponseEntity<Void> signin(@Valid @RequestBody SigninRequestDto signinRequestDto) {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 

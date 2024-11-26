@@ -21,7 +21,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "JwtUtil")
@@ -58,17 +57,6 @@ public class JwtUtil {
 				.compact();
 	}
 
-	// 쿠키 생성
-	public Cookie createCookie(String token) {
-		Cookie cookie = new Cookie(COOKIE_NAME, token);
-		cookie.setHttpOnly(true);  // 클라이언트에서 자바스크립트로 접근 불가
-		cookie.setSecure(true);    // HTTPS에서만 전송
-		cookie.setPath("/");       // 모든 경로에서 사용 가능
-		cookie.setMaxAge((int)(TOKEN_TIME / 1000)); // 만료 시간 (초 단위)
-
-		return cookie;
-	}
-
 	public String substringToken(String tokenValue) {
 		if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
 			return tokenValue.substring(7);
@@ -97,6 +85,6 @@ public class JwtUtil {
 	public Claims getUserInfoFromToken(String token) {
 		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
 	}
-	
+
 }
 
