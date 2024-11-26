@@ -5,11 +5,12 @@ import com.plus.domain.draw.entity.Product;
 import com.plus.domain.draw.enums.DrawType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
