@@ -1,4 +1,4 @@
-package com.plus.domain.review.controller;
+package com.plus.domain.review.dto.controller;
 
 import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
