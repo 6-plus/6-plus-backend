@@ -31,7 +31,7 @@ public class AuthService {
 
 		String encodedPassword = passwordEncoder.encode(signupRequestDto.getPassword());
 
-		// 'USER' 역할을 명시적으로 부여
+		// 'USER' 역할을 기본적으로 부여
 		UserRole userRole = UserRole.USER;  // 기본적으로 'USER' 역할 부여
 
 		User newUser = new User(
