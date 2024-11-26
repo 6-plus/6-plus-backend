@@ -8,6 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,8 +20,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.plus.domain.draw.dto.request.DrawSaveRequestDto;
 import com.plus.domain.draw.dto.request.DrawSearchRequestDto;
+import com.plus.domain.draw.dto.request.DrawUpdateRequestDto;
 import com.plus.domain.draw.dto.response.DrawSaveResponseDto;
 import com.plus.domain.draw.dto.response.DrawSearchResponseDto;
+import com.plus.domain.draw.dto.response.DrawUpdateResponseDto;
 import com.plus.domain.draw.service.DrawService;
 import com.plus.domain.security.UserDetailsImpl;
 
@@ -38,6 +42,21 @@ public class DrawController {
 		@RequestPart("requestDto") DrawSaveRequestDto requestDto,
 		@RequestPart("image") MultipartFile image) throws IOException {
 		DrawSaveResponseDto responseDto = drawService.saveDraw(userDetails.getUser().getId(), requestDto, image);
+		return ResponseEntity.ok(responseDto);
+	}
+
+	@PatchMapping(value = "/{drawId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<DrawUpdateResponseDto> updateDraw(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable Long drawId,
+		@RequestPart("requestDto") DrawUpdateRequestDto requestDto,
+		@RequestPart("image") MultipartFile image) throws IOException {
+
+		DrawUpdateResponseDto responseDto = drawService.updateDraw(
+			userDetails.getUser().getId(),
+			drawId,
+			requestDto,
+			image);
 		return ResponseEntity.ok(responseDto);
 	}
 

@@ -77,4 +77,27 @@ public class S3Service {
 		// 새파일이 성공적으로 생성되지 않았다면, 비어있는 Optional 객체를 반환
 		return Optional.empty();
 	}
+
+	public void delete(String imageUrl) {
+		// imageUrl에서 파일 이름 추출
+		String fileName = extractFileNameFromUrl(imageUrl);
+
+		try {
+			// S3 버킷에서 파일 삭제
+			amazonS3.deleteObject(bucket, fileName);
+			log.info("파일 삭제 완료: {}", fileName);
+		} catch (Exception e) {
+			log.error("파일 삭제 실패: {}", fileName, e);
+			throw new ExpectedException(ExceptionCode.FILE_DELETE_FAILED);
+		}
+	}
+
+	private String extractFileNameFromUrl(String imageUrl) {
+		// URL에서 버킷 도메인 부분을 제외하고 파일 경로를 추출
+		String bucketUrl = amazonS3.getUrl(bucket, "").toString();
+		if (!imageUrl.startsWith(bucketUrl)) {
+			throw new ExpectedException(ExceptionCode.INVALID_FILE_URL); // 잘못된 URL 처리
+		}
+		return imageUrl.substring(bucketUrl.length());
+	}
 }
