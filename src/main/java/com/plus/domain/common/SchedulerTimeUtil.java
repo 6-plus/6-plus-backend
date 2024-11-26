@@ -16,7 +16,7 @@ public class SchedulerTimeUtil {
 			default -> throw new IllegalArgumentException("존재하지 않는 알림 타입입니다.");
 		};
 
-		LocalDateTime notificationTime = baseTime.minusHours(type.time);
+		LocalDateTime notificationTime = baseTime.minusHours(type.getTime());
 		Duration duration = Duration.between(LocalDateTime.now(), notificationTime);
 
 		return Instant.now().plusSeconds(Math.max(0, duration.getSeconds()));

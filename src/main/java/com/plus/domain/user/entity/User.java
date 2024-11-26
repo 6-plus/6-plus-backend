@@ -10,6 +10,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,6 +31,7 @@ public class User extends BaseTimestamped {
 	@Enumerated(EnumType.STRING)
 	private UserRole userRole;
 
+	@Builder
 	public User(String email, String password, String nickname, String phoneNumber, UserRole userRole) {
 		this.email = email;
 		this.password = password;
