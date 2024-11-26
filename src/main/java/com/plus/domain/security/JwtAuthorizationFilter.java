@@ -36,6 +36,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 		ServletException,
 		IOException {
 
+		// /api/auth/** 경로는 필터 처리 제외
+		if (req.getRequestURI().startsWith("/api/auth")) {
+			filterChain.doFilter(req, res);
+			return;
+		}
+
 		// 쿠키에서 토큰 가져오기
 		String tokenValue = getTokenFromCookies(req);
 
