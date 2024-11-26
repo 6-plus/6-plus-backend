@@ -33,13 +33,13 @@ public class SseEmitters {
 		return emitter;
 	}
 
-	public void send(List<Long> ids, String sendNotificationBeforeDrawStart) {
+	public void send(List<Long> ids, String notificationMessage) {
 		emitters.forEach((id, emitter) -> {
 			if (ids.contains(id)) {
 				try {
 					emitter.send(SseEmitter.event()
 						.name("notification")
-						.data(sendNotificationBeforeDrawStart));
+						.data(notificationMessage));
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}

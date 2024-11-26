@@ -23,6 +23,8 @@ import com.plus.domain.notification.entity.SseEmitters;
 import com.plus.domain.notification.enums.DrawNotificationType;
 import com.plus.domain.notification.enums.NotificationStatus;
 import com.plus.domain.notification.repository.NotificationRepository;
+import com.plus.domain.user.entity.User;
+import com.plus.domain.user.repository.FavoriteRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,8 @@ public class NotificationService {
 	private final TaskScheduler taskScheduler;
 	private final NotificationRepository notificationRepository;
 	private final DrawRepository drawRepository;
+	private final FavoriteRepository favoriteRepository;
+	private final MailService mailService;
 
 	public SseEmitter connect(Long userId) throws IOException {
 		return emitters.add(userId);
@@ -75,7 +79,9 @@ public class NotificationService {
 			String productName = draw.getProduct().getProductName();
 			// TODO: 실제 repository에서 해당 응모를 관심 추천 한 userIds 조회 필요
 			List<Long> ids = List.of(1L, 2L);
-			emitters.send(ids, productName + type.message);
+			List<User> users = List.of();
+			emitters.send(ids, productName + type.generateMessage(productName));
+			mailService.sendEmailToUsers(users, notification, productName);
 			notification.complete();
 			notificationRepository.save(notification);
 		} catch (RuntimeException e) {
