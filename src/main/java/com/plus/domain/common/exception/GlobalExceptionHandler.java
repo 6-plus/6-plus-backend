@@ -1,7 +1,5 @@
 package com.plus.domain.common.exception;
 
-import java.rmi.UnexpectedException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,8 +16,8 @@ public class GlobalExceptionHandler {
 			.body(response);
 	}
 
-	@ExceptionHandler(UnexpectedException.class)
-	public ResponseEntity<ExceptionResponse> handleUnExpectedException(UnexpectedException exception) {
+	@ExceptionHandler(RuntimeException.class)
+	public ResponseEntity<ExceptionResponse> handleUnExpectedException(RuntimeException exception) {
 		ExceptionResponse response = ExceptionResponse.builder()
 			.code(HttpStatus.INTERNAL_SERVER_ERROR)
 			.message(exception.getMessage())
