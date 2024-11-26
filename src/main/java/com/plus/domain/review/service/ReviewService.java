@@ -35,7 +35,7 @@ public class ReviewService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<ReviewSearchResponseDto> searchReview(Long drawId, Pageable pageable) {
+	public Page<ReviewSearchResponseDto> searchDrawReviews(Long drawId, Pageable pageable) {
 		return reviewRepository.findAllByDrawId(drawId, pageable).map(ReviewSearchResponseDto::new);
 	}
 }
