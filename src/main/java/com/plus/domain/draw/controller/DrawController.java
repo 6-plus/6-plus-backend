@@ -20,34 +20,34 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DrawController {
 
-	private final DrawService drawService;
+    private final DrawService drawService;
 
-	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<DrawSaveResponseDto> saveDraw(@RequestPart("requestDto") DrawSaveRequestDto requestDto,
-														@RequestPart("image") MultipartFile image) throws IOException {
-		DrawSaveResponseDto responseDto = drawService.saveDraw(requestDto, image);
-		return ResponseEntity.ok(responseDto);
-	}
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DrawSaveResponseDto> saveDraw(@RequestPart("requestDto") DrawSaveRequestDto requestDto,
+                                                        @RequestPart("image") MultipartFile image) throws IOException {
+        DrawSaveResponseDto responseDto = drawService.saveDraw(requestDto, image);
+        return ResponseEntity.ok(responseDto);
+    }
 
-	@GetMapping("/my")
-	public ResponseEntity<List<DrawSearchResponseDto>> searchMyDraw(
-		@RequestParam Long userId,
-		@RequestParam(defaultValue = "1") int page,
-		@RequestParam(defaultValue = "10") int size
-	) {
-		return ResponseEntity
-			.status(HttpStatus.OK)
-			.body(drawService.searchMyDraw(userId, page, size));
-	}
+    @GetMapping("/my")
+    public ResponseEntity<List<DrawSearchResponseDto>> searchMyDraw(
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(drawService.searchMyDraw(userId, page, size));
+    }
 
-	@GetMapping
-	public ResponseEntity<List<DrawSearchResponseDto>> searchDraws(
-		@RequestBody DrawSearchRequestDto requestDto,
-		@RequestParam(defaultValue = "1") int page,
-		@RequestParam(defaultValue = "10") int size
-	) {
-		return ResponseEntity
-			.status(HttpStatus.OK)
-			.body(drawService.searchDraws(requestDto, page, size));
-	}
+    @GetMapping
+    public ResponseEntity<List<DrawSearchResponseDto>> searchDraws(
+            @RequestBody DrawSearchRequestDto requestDto,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(drawService.searchDraws(requestDto, page, size));
+    }
 }
