@@ -2,8 +2,11 @@ package com.plus.domain.notification.service;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,9 +14,11 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.plus.domain.common.SchedulerTimeUtil;
 import com.plus.domain.draw.entity.Draw;
+import com.plus.domain.draw.repository.DrawRepository;
 import com.plus.domain.notification.entity.Notification;
 import com.plus.domain.notification.entity.SseEmitters;
 import com.plus.domain.notification.enums.DrawNotificationType;
+import com.plus.domain.notification.enums.NotificationStatus;
 import com.plus.domain.notification.repository.NotificationRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -27,27 +32,39 @@ public class NotificationService {
 	private final SseEmitters emitters;
 	private final TaskScheduler taskScheduler;
 	private final NotificationRepository notificationRepository;
+	private final DrawRepository drawRepository;
 
 	public SseEmitter connect(Long userId) throws IOException {
 		return emitters.add(userId);
 	}
 
-	@Transactional
-	public void addTask(Draw draw) {
-		for (DrawNotificationType type : DrawNotificationType.values()) {
-			try {
-				Instant notificationTime = SchedulerTimeUtil.calculateNotificationTime(draw, type);
-				taskScheduler.schedule(() -> sendNotification(draw, type), notificationTime);
-				Notification notification = Notification.createWithDraw(draw, type, notificationTime);
-				notificationRepository.save(notification);
-			} catch (RuntimeException e) {
-				log.error(e.getMessage());
-				throw new RuntimeException(e);
+	@EventListener(ApplicationReadyEvent.class)
+	public void initScheduledNotification() {
+		List<Notification> notifications = notificationRepository.findAllByStatus(NotificationStatus.PENDING);
+		notifications.forEach(notification -> {
+			Draw draw = drawRepository.findById(notification.getDrawId())
+				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 응모입니다."));
+			if (LocalDateTime.now().isBefore(notification.getNotificationTime())) {
+				Instant notificationTime = SchedulerTimeUtil.calculateNotificationTime(draw, notification.getType());
+				taskScheduler.schedule(() -> sendNotification(draw, notification.getType()), notificationTime);
 			}
-		}
+			if (LocalDateTime.now().isAfter(notification.getNotificationTime())) {
+				notification.complete();
+			}
+			notificationRepository.save(notification);
+		});
 	}
 
 	@Transactional
+	public void addTask(Draw draw) {
+		for (DrawNotificationType type : DrawNotificationType.values()) {
+			Instant notificationTime = SchedulerTimeUtil.calculateNotificationTime(draw, type);
+			taskScheduler.schedule(() -> sendNotification(draw, type), notificationTime);
+			Notification notification = Notification.createWithDraw(draw, type, notificationTime);
+			notificationRepository.save(notification);
+		}
+	}
+
 	public void sendNotification(Draw draw, DrawNotificationType type) {
 		try {
 			Notification notification = notificationRepository.findByDrawIdAndType(draw.getId(), type)
@@ -59,7 +76,7 @@ public class NotificationService {
 			notification.complete();
 			notificationRepository.save(notification);
 		} catch (RuntimeException e) {
-			log.error(e.getMessage());
+			log.error("알림 전송 중 오류 발생 : {}", e.getMessage());
 			throw new RuntimeException(e);
 		}
 	}
