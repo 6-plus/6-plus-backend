@@ -1,4 +1,4 @@
-package com.plus.domain.user.dto;
+package com.plus.domain.user.dto.request;
 
 public class FavoriteSearchRequestDto {
 }
