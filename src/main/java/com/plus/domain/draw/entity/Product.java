@@ -1,16 +1,22 @@
 package com.plus.domain.draw.entity;
 
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Embeddable
-@Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Product {
 	private String productName;
 	private String productDescription;
 	private String productImage;
+
+	@Builder
+	public Product(String productName, String productDescription, String productImage) {
+		this.productName = productName;
+		this.productDescription = productDescription;
+		this.productImage = productImage;
+	}
 }

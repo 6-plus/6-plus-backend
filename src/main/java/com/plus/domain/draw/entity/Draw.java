@@ -24,18 +24,12 @@ public class Draw extends BaseTimestamped {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
 	private Integer totalWinner;
-
 	private LocalDateTime startTime;
-
 	private LocalDateTime endTime;
-
 	private LocalDateTime resultTime;
-
 	@Enumerated(EnumType.STRING)
 	private DrawType drawType;
-
 	@Embedded
 	private Product product;
 
