@@ -40,4 +40,14 @@ public class ReviewController {
 			.status(HttpStatus.OK)
 			.body(reviewService.searchDrawReviews(drawId, pageable));
 	}
+
+	@GetMapping("/my")
+	public ResponseEntity<Page<ReviewSearchResponseDto>> searchMyReviews(
+		@RequestParam Long userId,
+		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+	) {
+		return ResponseEntity
+			.status(HttpStatus.OK)
+			.body(reviewService.searchMyReviews(userId, pageable));
+	}
 }

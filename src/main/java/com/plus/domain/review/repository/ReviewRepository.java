@@ -8,4 +8,6 @@ import com.plus.domain.review.entity.Review;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 	Page<Review> findAllByDrawId(Long drawId, Pageable pageable);
+
+	Page<Review> findAllByUserId(Long userId, Pageable pageable);
 }
