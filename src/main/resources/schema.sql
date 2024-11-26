@@ -11,17 +11,6 @@ CREATE TABLE IF NOT EXISTS user
     PRIMARY KEY (id)
 ) ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS notification
-(
-    id                BIGINT NOT NULL AUTO_INCREMENT,
-    notification_time DATETIME(6),
-    draw_id           BIGINT,
-    status            ENUM ('PENDING', 'COMPLETE'),
-    type              ENUM ('BEFORE_START', 'BEFORE_END'),
-    PRIMARY KEY (id),
-    FOREIGN KEY (draw_id) REFERENCES draw (id)
-) ENGINE = InnoDB;
-
 CREATE TABLE IF NOT EXISTS draw
 (
     id                  BIGINT NOT NULL AUTO_INCREMENT,
@@ -36,6 +25,18 @@ CREATE TABLE IF NOT EXISTS draw
     start_time          DATETIME(6),
     total_winner        INT,
     PRIMARY KEY (id)
+) ENGINE = InnoDB;
+
+
+CREATE TABLE IF NOT EXISTS notification
+(
+    id                BIGINT NOT NULL AUTO_INCREMENT,
+    notification_time DATETIME(6),
+    draw_id           BIGINT,
+    status            ENUM ('PENDING', 'COMPLETE'),
+    type              ENUM ('BEFORE_START', 'BEFORE_END'),
+    PRIMARY KEY (id),
+    FOREIGN KEY (draw_id) REFERENCES draw (id)
 ) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS review
