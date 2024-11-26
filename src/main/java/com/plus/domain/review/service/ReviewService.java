@@ -38,4 +38,8 @@ public class ReviewService {
 	public Page<ReviewSearchResponseDto> searchDrawReviews(Long drawId, Pageable pageable) {
 		return reviewRepository.findAllByDrawId(drawId, pageable).map(ReviewSearchResponseDto::new);
 	}
+
+	public Page<ReviewSearchResponseDto> searchMyReviews(Long userId, Pageable pageable) {
+		return reviewRepository.findAllByUserId(userId, pageable).map(ReviewSearchResponseDto::new);
+	}
 }
