@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.plus.domain.notification.entity.Notification;
 import com.plus.domain.notification.enums.DrawNotificationType;
+import com.plus.domain.user.dto.response.NotificationUserDto;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -37,9 +38,17 @@ public class MailService {
 		}
 	}
 
-	public void sendEmailToUsers(List<String> userEmails, Notification notification, String productName) {
+	public void sendEmailToUsers(
+		List<NotificationUserDto> notificationUsers,
+		Notification notification,
+		String productName
+	) {
 		DrawNotificationType type = notification.getType();
-		userEmails.forEach(email -> {
+		List<String> emails = notificationUsers.stream()
+			.map(NotificationUserDto::getEmail)
+			.toList();
+
+		emails.forEach(email -> {
 			sendEmailNotice(email, type.generateMessage(productName));
 		});
 	}

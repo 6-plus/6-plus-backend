@@ -78,14 +78,8 @@ public class NotificationService {
 				.orElseThrow(() -> new NotificationException(NOT_FOUND_NOTIFICATION));
 			String productName = draw.getProduct().getProductName();
 			List<NotificationUserDto> notificationUsers = favoriteService.findUsersByDrawId(draw.getId());
-			List<Long> userIds = notificationUsers.stream()
-				.map(NotificationUserDto::getId)
-				.toList();
-			List<String> userEmails = notificationUsers.stream()
-				.map(NotificationUserDto::getEmail)
-				.toList();
-			emitters.send(userIds, productName + type.generateMessage(productName));
-			mailService.sendEmailToUsers(userEmails, notification, productName);
+			emitters.send(notificationUsers, productName + type.generateMessage(productName));
+			mailService.sendEmailToUsers(notificationUsers, notification, productName);
 			notification.complete();
 			notificationRepository.save(notification);
 		} catch (RuntimeException e) {
