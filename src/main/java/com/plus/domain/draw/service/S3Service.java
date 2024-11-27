@@ -23,81 +23,70 @@ import lombok.extern.slf4j.Slf4j;
 public class S3Service {
 
 	private final AmazonS3 amazonS3;
+
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
 
-	// MultipartFile을 전달받아 File로 전환한 후 S3에 업로드
+	// MultipartFile을 전달받아 S3에 업로드
 	public String upload(MultipartFile multipartFile, String dirName) throws IOException {
 		File uploadFile = convert(multipartFile)
 			.orElseThrow(() -> new ExpectedException(ExceptionCode.FILE_NOT_FOUND));
-
 		return upload(uploadFile, dirName);
 	}
 
 	private String upload(File uploadFile, String dirName) {
 		String fileName = dirName + "/" + uploadFile.getName();
 		String uploadImageUrl = putS3(uploadFile, fileName);
-
-		removeNewFile(uploadFile); // convert() 과정에서 로컬에 생성된 파일 삭제
+		removeNewFile(uploadFile);
 		return uploadImageUrl;
 	}
 
 	private String putS3(File uploadFile, String fileName) {
-		amazonS3.putObject(
-			new PutObjectRequest(bucket, fileName, uploadFile) // PublicRead 권한으로 upload
-		);
-		return amazonS3.getUrl(bucket, fileName).toString(); // File의 URL return
+		amazonS3.putObject(new PutObjectRequest(bucket, fileName, uploadFile));
+		return amazonS3.getUrl(bucket, fileName).toString();
 	}
 
 	private void removeNewFile(File targetFile) {
-		String name = targetFile.getName();
-
-		// convert() 과정에서 로컬에 생성된 파일을 삭제
 		if (targetFile.delete()) {
-			log.info(name + "파일 삭제 완료");
+			log.info("파일 삭제 완료: {}", targetFile.getName());
 		} else {
-			log.info(name + "파일 삭제 실패");
+			log.warn("파일 삭제 실패: {}", targetFile.getName());
 		}
 	}
 
 	public Optional<File> convert(MultipartFile multipartFile) throws IOException {
-		// 기존 파일 이름으로 새로운 File 객체 생성
-		// 해당 객체는 프로그램이 실행되는 로컬 디렉토리(루트 디렉토리)에 위치하게 됨
 		File convertFile = new File(multipartFile.getOriginalFilename());
-		if (convertFile.createNewFile()) { // 해당 경로에 파일이 없을 경우, 새 파일 생성
-
+		if (convertFile.createNewFile()) {
 			try (FileOutputStream fos = new FileOutputStream(convertFile)) {
-
-				// multipartFile의 내용을 byte로 가져와서 write
 				fos.write(multipartFile.getBytes());
 			}
 			return Optional.of(convertFile);
 		}
-
-		// 새파일이 성공적으로 생성되지 않았다면, 비어있는 Optional 객체를 반환
 		return Optional.empty();
 	}
 
+	// 이미지 삭제 메서드
 	public void delete(String imageUrl) {
-		// imageUrl에서 파일 이름 추출
+		// URL에서 파일 이름 추출
 		String fileName = extractFileNameFromUrl(imageUrl);
-
 		try {
-			// S3 버킷에서 파일 삭제
 			amazonS3.deleteObject(bucket, fileName);
-			log.info("파일 삭제 완료: {}", fileName);
+			log.info("S3에서 파일 삭제 완료: {}", fileName);
 		} catch (Exception e) {
-			log.error("파일 삭제 실패: {}", fileName, e);
+			log.error("S3에서 파일 삭제 실패: {}", fileName, e);
 			throw new ExpectedException(ExceptionCode.FILE_DELETE_FAILED);
 		}
 	}
 
+	// URL에서 S3 파일 경로 추출
 	private String extractFileNameFromUrl(String imageUrl) {
-		// URL에서 버킷 도메인 부분을 제외하고 파일 경로를 추출
 		String bucketUrl = amazonS3.getUrl(bucket, "").toString();
+
 		if (!imageUrl.startsWith(bucketUrl)) {
-			throw new ExpectedException(ExceptionCode.INVALID_FILE_URL); // 잘못된 URL 처리
+			log.error("유효하지 않은 파일 URL: {}", imageUrl);
+			throw new ExpectedException(ExceptionCode.INVALID_FILE_URL);
 		}
+
 		return imageUrl.substring(bucketUrl.length());
 	}
 }
