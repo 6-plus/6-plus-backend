@@ -7,5 +7,7 @@ import java.util.List;
 
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
-    List<Favorite> findAllByUserId(Long userId);
+	List<Favorite> findAllByUserId(Long userId);
+
+	boolean existsByUserIdAndDrawId(Long userId, Long drawId);
 }

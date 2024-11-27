@@ -5,30 +5,34 @@ import com.plus.domain.draw.entity.Product;
 import com.plus.domain.draw.enums.DrawType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class FavoriteSearchResponseDto {
 
-    private Long id;
-    private Integer totalWinners;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-    private LocalDateTime resultTime;
-    private DrawType type;
-    private Product product;
+	private Long id;
+	private Integer totalWinners;
+	private LocalDateTime startTime;
+	private LocalDateTime endTime;
+	private LocalDateTime resultTime;
+	private DrawType type;
+	private Product product;
 
-    public static FavoriteSearchResponseDto from(Draw draw) {
-        return FavoriteSearchResponseDto.builder()
-                .id(draw.getId())
-                .totalWinners(draw.getTotalWinner())
-                .startTime(draw.getStartTime())
-                .endTime(draw.getEndTime())
-                .resultTime(draw.getResultTime())
-                .type(draw.getDrawType())
-                .product(draw.getProduct())
-                .build();
-    }
+	public static FavoriteSearchResponseDto from(Draw draw) {
+		return FavoriteSearchResponseDto.builder()
+			.id(draw.getId())
+			.totalWinners(draw.getTotalWinner())
+			.startTime(draw.getStartTime())
+			.endTime(draw.getEndTime())
+			.resultTime(draw.getResultTime())
+			.type(draw.getDrawType())
+			.product(draw.getProduct())
+			.build();
+	}
 }
