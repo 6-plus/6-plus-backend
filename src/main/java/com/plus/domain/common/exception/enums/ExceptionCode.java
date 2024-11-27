@@ -1,8 +1,9 @@
 package com.plus.domain.common.exception.enums;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
@@ -22,14 +23,19 @@ public enum ExceptionCode {
 	INVALID_FILE_URL(HttpStatus.BAD_REQUEST, "파일을 삭제할 수 없습니다."),
 
 	// Auth Exception
+	DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "이미 존재하는 이메일입니다."),
+	DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST, "이미 존재하는 닉네임입니다."),
+	NOT_FOUND_TOKEN(HttpStatus.UNAUTHORIZED, "토큰을 찾을 수 없습니다."),
 
 	// Review Exception
 
 	// User Exception
+	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
+	PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다."),
+	NICKNAME_ALREADY_IN_USE(HttpStatus.BAD_REQUEST, "이미 사용 중인 닉네임입니다."),
 
 	// Favorite Exception
 	DRAW_NOT_FOUND_OF_FAVORITE(HttpStatus.NOT_FOUND, "요청한 응모를 찾을 수 없습니다.."),
-	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 사용자를 찾을 수 없습니다."),
 	DUPLICATE_FAVORITE(HttpStatus.NOT_FOUND, "이미 저장된 관심 응모입니다.");
 
 	private final HttpStatus code;

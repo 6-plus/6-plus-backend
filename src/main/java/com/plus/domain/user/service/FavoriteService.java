@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.plus.domain.common.exception.FavoriteException;
+import com.plus.domain.common.exception.UserException;
 import com.plus.domain.common.exception.enums.ExceptionCode;
 import com.plus.domain.draw.entity.Draw;
 import com.plus.domain.draw.repository.DrawRepository;
@@ -40,7 +41,7 @@ public class FavoriteService {
 		}
 
 		if (!userRepository.existsById(userId)) {
-			throw new FavoriteException(USER_NOT_FOUND);
+			throw new UserException(USER_NOT_FOUND);
 		}
 
 		if (favoriteRepository.existsByUserIdAndDrawId(userId, drawId)) {
@@ -82,5 +83,4 @@ public class FavoriteService {
 			.map(NotificationUserDto::from)
 			.toList();
 	}
-
 }
