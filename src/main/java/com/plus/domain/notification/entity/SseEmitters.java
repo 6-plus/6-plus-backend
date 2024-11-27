@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.plus.domain.user.dto.response.NotificationUserDto;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -33,7 +35,11 @@ public class SseEmitters {
 		return emitter;
 	}
 
-	public void send(List<Long> ids, String notificationMessage) {
+	public void send(List<NotificationUserDto> notificationUsers, String notificationMessage) {
+		List<Long> ids = notificationUsers.stream()
+			.map(NotificationUserDto::getId)
+			.toList();
+		
 		emitters.forEach((id, emitter) -> {
 			if (ids.contains(id)) {
 				try {

@@ -23,8 +23,8 @@ import com.plus.domain.notification.entity.SseEmitters;
 import com.plus.domain.notification.enums.DrawNotificationType;
 import com.plus.domain.notification.enums.NotificationStatus;
 import com.plus.domain.notification.repository.NotificationRepository;
-import com.plus.domain.user.entity.User;
-import com.plus.domain.user.repository.FavoriteRepository;
+import com.plus.domain.user.dto.response.NotificationUserDto;
+import com.plus.domain.user.service.FavoriteService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class NotificationService {
 	private final TaskScheduler taskScheduler;
 	private final NotificationRepository notificationRepository;
 	private final DrawRepository drawRepository;
-	private final FavoriteRepository favoriteRepository;
+	private final FavoriteService favoriteService;
 	private final MailService mailService;
 
 	public SseEmitter connect(Long userId) throws IOException {
@@ -77,11 +77,9 @@ public class NotificationService {
 			Notification notification = notificationRepository.findByDrawIdAndType(draw.getId(), type)
 				.orElseThrow(() -> new NotificationException(NOT_FOUND_NOTIFICATION));
 			String productName = draw.getProduct().getProductName();
-			// TODO: 실제 repository에서 해당 응모를 관심 추천 한 userIds 조회 필요
-			List<Long> ids = List.of(1L, 2L);
-			List<User> users = List.of();
-			emitters.send(ids, productName + type.generateMessage(productName));
-			mailService.sendEmailToUsers(users, notification, productName);
+			List<NotificationUserDto> notificationUsers = favoriteService.findUsersByDrawId(draw.getId());
+			emitters.send(notificationUsers, productName + type.generateMessage(productName));
+			mailService.sendEmailToUsers(notificationUsers, notification, productName);
 			notification.complete();
 			notificationRepository.save(notification);
 		} catch (RuntimeException e) {

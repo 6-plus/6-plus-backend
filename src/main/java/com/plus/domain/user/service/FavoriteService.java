@@ -1,5 +1,13 @@
 package com.plus.domain.user.service;
 
+import static com.plus.domain.common.exception.enums.ExceptionCode.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.plus.domain.common.exception.FavoriteException;
 import com.plus.domain.common.exception.enums.ExceptionCode;
 import com.plus.domain.draw.entity.Draw;
@@ -8,18 +16,12 @@ import com.plus.domain.security.UserDetailsImpl;
 import com.plus.domain.user.dto.response.FavoriteDeleteResponseDto;
 import com.plus.domain.user.dto.response.FavoriteSaveResponseDto;
 import com.plus.domain.user.dto.response.FavoriteSearchResponseDto;
+import com.plus.domain.user.dto.response.NotificationUserDto;
 import com.plus.domain.user.entity.Favorite;
 import com.plus.domain.user.repository.FavoriteRepository;
 import com.plus.domain.user.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.plus.domain.common.exception.enums.ExceptionCode.DRAW_NOT_FOUND_OF_FAVORITE;
-import static com.plus.domain.common.exception.enums.ExceptionCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -73,7 +75,12 @@ public class FavoriteService {
 		return FavoriteDeleteResponseDto.builder()
 			.message("관심응모가 삭제 되었습니다.")
 			.build();
-
-
 	}
+
+	public List<NotificationUserDto> findUsersByDrawId(Long drawId) {
+		return favoriteRepository.findNotificationUserByDrawId(drawId).stream()
+			.map(NotificationUserDto::from)
+			.toList();
+	}
+
 }

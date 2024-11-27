@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS notification
     type              ENUM ('BEFORE_START', 'BEFORE_END'),
     PRIMARY KEY (id),
     FOREIGN KEY (draw_id) REFERENCES draw (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS review
@@ -48,8 +50,12 @@ CREATE TABLE IF NOT EXISTS review
     draw_id    BIGINT,
     image      VARCHAR(255),
     PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES user (id),
+    FOREIGN KEY (user_id) REFERENCES user (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (draw_id) REFERENCES draw (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS user_draw
@@ -60,8 +66,12 @@ CREATE TABLE IF NOT EXISTS user_draw
     win        BIT,
     created_at DATETIME(6),
     PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES user (id),
+    FOREIGN KEY (user_id) REFERENCES user (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (draw_id) REFERENCES draw (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS favorite_draw
@@ -70,6 +80,10 @@ CREATE TABLE IF NOT EXISTS favorite_draw
     user_id BIGINT,
     draw_id BIGINT,
     PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES user (id),
+    FOREIGN KEY (user_id) REFERENCES user (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (draw_id) REFERENCES draw (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 ) ENGINE = InnoDB;
