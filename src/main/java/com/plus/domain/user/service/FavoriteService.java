@@ -17,6 +17,7 @@ import com.plus.domain.security.UserDetailsImpl;
 import com.plus.domain.user.dto.response.FavoriteDeleteResponseDto;
 import com.plus.domain.user.dto.response.FavoriteSaveResponseDto;
 import com.plus.domain.user.dto.response.FavoriteSearchResponseDto;
+import com.plus.domain.user.dto.response.NotificationUserDto;
 import com.plus.domain.user.entity.Favorite;
 import com.plus.domain.user.repository.FavoriteRepository;
 import com.plus.domain.user.repository.UserRepository;
@@ -75,6 +76,11 @@ public class FavoriteService {
 		return FavoriteDeleteResponseDto.builder()
 			.message("관심응모가 삭제 되었습니다.")
 			.build();
+	}
 
+	public List<NotificationUserDto> findUsersByDrawId(Long drawId) {
+		return favoriteRepository.findNotificationUserByDrawId(drawId).stream()
+			.map(NotificationUserDto::from)
+			.toList();
 	}
 }
