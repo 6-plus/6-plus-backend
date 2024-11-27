@@ -1,5 +1,7 @@
 package com.plus.domain.security;
 
+import static com.plus.domain.common.exception.enums.ExceptionCode.*;
+
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
@@ -10,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.plus.domain.auth.exception.ServerException;
+import com.plus.domain.common.exception.AuthException;
 import com.plus.domain.user.enums.UserRole;
 
 import io.jsonwebtoken.Claims;
@@ -61,7 +63,7 @@ public class JwtUtil {
 		if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
 			return tokenValue.substring(7);
 		}
-		throw new ServerException("Not Found Token");
+		throw new AuthException(NOT_FOUND_TOKEN);
 	}
 
 	// 토큰 검증

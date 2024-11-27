@@ -1,11 +1,13 @@
 package com.plus.domain.auth.service;
 
+import static com.plus.domain.common.exception.enums.ExceptionCode.*;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.plus.domain.auth.dto.SignupRequestDto;
-import com.plus.domain.auth.exception.InvalidRequestException;
+import com.plus.domain.common.exception.AuthException;
 import com.plus.domain.user.entity.User;
 import com.plus.domain.user.enums.UserRole;
 import com.plus.domain.user.repository.UserRepository;
@@ -23,10 +25,10 @@ public class AuthService {
 	//회원가입
 	public void signup(SignupRequestDto signupRequestDto) {
 		if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
-			throw new InvalidRequestException("이미 존재하는 이메일입니다.");
+			throw new AuthException(DUPLICATE_EMAIL);
 		}
 		if (userRepository.existsByNickname(signupRequestDto.getNickName())) {
-			throw new InvalidRequestException("이미 존재하는 닉네임입니다.");
+			throw new AuthException(DUPLICATE_EMAIL);
 		}
 
 		String encodedPassword = passwordEncoder.encode(signupRequestDto.getPassword());
