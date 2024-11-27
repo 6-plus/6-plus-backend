@@ -16,13 +16,12 @@ import com.plus.domain.security.UserDetailsImpl;
 import com.plus.domain.user.dto.response.FavoriteDeleteResponseDto;
 import com.plus.domain.user.dto.response.FavoriteSaveResponseDto;
 import com.plus.domain.user.dto.response.FavoriteSearchResponseDto;
+import com.plus.domain.user.dto.response.NotificationUserDto;
 import com.plus.domain.user.entity.Favorite;
 import com.plus.domain.user.repository.FavoriteRepository;
 import com.plus.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
-import com.plus.domain.user.dto.response.NotificationUserDto;
-
 
 @Service
 @RequiredArgsConstructor
@@ -84,5 +83,4 @@ public class FavoriteService {
 			.toList();
 	}
 
-}
 }
