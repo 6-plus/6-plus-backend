@@ -1,23 +1,28 @@
 package com.plus.domain.user.service;
 
+import static com.plus.domain.common.exception.enums.ExceptionCode.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.plus.domain.common.exception.FavoriteException;
+import com.plus.domain.common.exception.enums.ExceptionCode;
 import com.plus.domain.draw.entity.Draw;
 import com.plus.domain.draw.repository.DrawRepository;
+import com.plus.domain.security.UserDetailsImpl;
 import com.plus.domain.user.dto.response.FavoriteDeleteResponseDto;
 import com.plus.domain.user.dto.response.FavoriteSaveResponseDto;
 import com.plus.domain.user.dto.response.FavoriteSearchResponseDto;
-import com.plus.domain.user.dto.response.NotificationUserDto;
 import com.plus.domain.user.entity.Favorite;
-import com.plus.domain.user.entity.User;
 import com.plus.domain.user.repository.FavoriteRepository;
 import com.plus.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import com.plus.domain.user.dto.response.NotificationUserDto;
+
 
 @Service
 @RequiredArgsConstructor
@@ -28,25 +33,33 @@ public class FavoriteService {
 	private final UserRepository userRepository;
 
 	@Transactional
-	public FavoriteSaveResponseDto saveFavorite(Long drawId, Long userId) {
-		Draw draw = drawRepository.findById(drawId)
-			.orElseThrow(() -> new IllegalArgumentException("Draw not found with ID: " + drawId));
+	public FavoriteSaveResponseDto saveFavorite(Long drawId, UserDetailsImpl userDetails) {
+		Long userId = userDetails.getUser().getId();
 
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+		if (!drawRepository.existsById(drawId)) {
+			throw new FavoriteException(DRAW_NOT_FOUND_OF_FAVORITE);
+		}
+
+		if (!userRepository.existsById(userId)) {
+			throw new FavoriteException(USER_NOT_FOUND);
+		}
+
+		if (favoriteRepository.existsByUserIdAndDrawId(userId, drawId)) {
+			throw new FavoriteException(ExceptionCode.DUPLICATE_FAVORITE);
+		}
 
 		Favorite savedFavorite = favoriteRepository.save(Favorite.builder()
-			.drawId(draw.getId())
-			.userId(user.getId())
+			.drawId(drawId)
+			.userId(userId)
 			.build());
 
-		return savedFavorite.toDto();
+		return FavoriteSaveResponseDto.from(savedFavorite);
 	}
 
 	@Transactional(readOnly = true)
-	public List<FavoriteSearchResponseDto> searchfavorite(Long userId) {
+	public List<FavoriteSearchResponseDto> searchfavorite(UserDetailsImpl userDetails) {
 
-		List<Favorite> res = favoriteRepository.findAllByUserId(userId);
+		List<Favorite> res = favoriteRepository.findAllByUserId(userDetails.getUser().getId());
 
 		List<FavoriteSearchResponseDto> responseDtos = new ArrayList<>();
 		for (Favorite re : res) {
@@ -70,4 +83,6 @@ public class FavoriteService {
 			.map(NotificationUserDto::from)
 			.toList();
 	}
+
+}
 }

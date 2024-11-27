@@ -12,8 +12,10 @@ import com.plus.domain.common.exception.ExpectedException;
 import com.plus.domain.common.exception.enums.ExceptionCode;
 import com.plus.domain.draw.dto.request.DrawSaveRequestDto;
 import com.plus.domain.draw.dto.request.DrawSearchRequestDto;
+import com.plus.domain.draw.dto.request.DrawUpdateRequestDto;
 import com.plus.domain.draw.dto.response.DrawSaveResponseDto;
 import com.plus.domain.draw.dto.response.DrawSearchResponseDto;
+import com.plus.domain.draw.dto.response.DrawUpdateResponseDto;
 import com.plus.domain.draw.entity.Draw;
 import com.plus.domain.draw.entity.Product;
 import com.plus.domain.draw.enums.DrawStatus;
@@ -86,5 +88,57 @@ public class DrawService {
 		LocalDateTime now = LocalDateTime.now();
 		SortBy sortBy = requestDto.getSortBy();
 		return drawRepository.findAllDraws(productName, page, size, status, now, sortBy);
+	}
+
+	@Transactional
+	public DrawUpdateResponseDto updateDraw(Long userId, Long drawId, DrawUpdateRequestDto requestDto,
+		MultipartFile image) throws IOException {
+
+		// User 권한 확인
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new ExpectedException(ExceptionCode.NOT_AUTHORIZED)); // USER_NOT_FOUND로 변경 예정
+
+		if (user.getUserRole() != UserRole.ADMIN) {
+			throw new ExpectedException(ExceptionCode.NOT_AUTHORIZED);
+		}
+
+		// 기존 응모 데이터 조회
+		Draw draw = drawRepository.findById(drawId)
+			.orElseThrow(() -> new ExpectedException(ExceptionCode.DRAW_NOT_FOUND));
+
+		// 응모 제품명 중복 확인 (본인의 제품 제외)
+		if (!draw.getProduct().getProductName().equals(requestDto.getProduct().getProductName()) &&
+			drawRepository.existsByProduct_ProductName(requestDto.getProduct().getProductName())) {
+			throw new ExpectedException(ExceptionCode.DUPLICATE_DRAW_NAME);
+		}
+
+		// 이미지가 새로운 파일로 전달된 경우, S3에 업로드 및 기존 이미지 삭제
+		String imageUrl = draw.getProduct().getProductImage(); // 기존 이미지 URL 유지
+		if (image != null && !image.isEmpty()) {
+			// 기존 이미지 삭제 (선택적으로 구현)
+			s3Service.delete(imageUrl);
+
+			// 새로운 이미지 업로드
+			imageUrl = s3Service.upload(image, "image");
+		}
+
+		// 수정 로직: Draw 엔티티의 필드 업데이트
+		draw.setTotalWinner(requestDto.getTotalWinners());
+		draw.setStartTime(requestDto.getStartTime());
+		draw.setEndTime(requestDto.getEndTime());
+		draw.setResultTime(requestDto.getResultTime());
+		draw.setDrawType(requestDto.getDrawType());
+
+		// Product 필드 업데이트
+		Product product = draw.getProduct();
+		product.setProductName(requestDto.getProduct().getProductName());
+		product.setProductDescription(requestDto.getProduct().getProductDescription());
+		product.setProductImage(imageUrl);
+
+		// 변경 사항 저장
+		Draw updateDraw = drawRepository.save(draw);
+
+		return new DrawUpdateResponseDto(updateDraw);
+
 	}
 }
