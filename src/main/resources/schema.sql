@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS user_draw
         ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS favorite_draw
+ CREATE TABLEIF NOT EXISTS favorite_draw
 (
     id      BIGINT NOT NULL AUTO_INCREMENT,
     user_id BIGINT,
@@ -87,3 +87,4 @@ CREATE TABLE IF NOT EXISTS favorite_draw
         ON DELETE CASCADE
         ON UPDATE CASCADE
 ) ENGINE = InnoDB;
+

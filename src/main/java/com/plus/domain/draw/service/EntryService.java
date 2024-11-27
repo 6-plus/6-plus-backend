@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -50,6 +51,11 @@ public class EntryService {
 				throw new RuntimeException("재시도 중 인터럽트가 발생하였습니다.", e);
 			}
 		}
+
+		// 락 생성
+		userDrawLcokRepository.save(UserDrawLock.builder()
+			.createdAt(LocalDateTime.now())
+			.build());
 
 		// 유효성 검사(남은 응모 갯수)
 		long count = userDrawRepository.count();
