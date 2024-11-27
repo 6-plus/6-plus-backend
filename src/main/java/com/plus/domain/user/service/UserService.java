@@ -26,7 +26,7 @@ public class UserService {
 
 		// 현재 사용자 가져오기
 		User user = userRepository.findById(userDetails.getUser().getId())
-			.orElseThrow(() -> new UserException(USER_DOES_NOT_EXIST));
+			.orElseThrow(() -> new UserException(USER_NOT_FOUND));
 
 		if (!passwordEncoder.matches(requestDto.getCurrentPassword(), user.getPassword())) {
 			throw new UserException(PASSWORD_MISMATCH);
