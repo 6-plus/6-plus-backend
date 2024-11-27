@@ -141,4 +141,27 @@ public class DrawService {
 		return new DrawUpdateResponseDto(updateDraw);
 
 	}
+
+	@Transactional
+	public void deleteDraw(Long userId, Long drawId) {
+		// Draw 엔티티 확인
+		Draw draw = drawRepository.findById(drawId)
+			.orElseThrow(() -> new ExpectedException(ExceptionCode.DRAW_NOT_FOUND));
+
+		// User 권한 확인
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new ExpectedException(ExceptionCode.NOT_AUTHORIZED)); // USER_NOT_FOUND로 변경 예정
+
+		if (user.getUserRole() != UserRole.ADMIN) {
+			throw new ExpectedException(ExceptionCode.NOT_AUTHORIZED);
+		}
+
+		// 이미지 삭제
+		String imageUrl = draw.getProduct().getProductImage();
+		s3Service.delete(imageUrl);
+
+		// 데이터베이스에서 Draw 삭제
+		drawRepository.delete(draw);
+
+	}
 }
