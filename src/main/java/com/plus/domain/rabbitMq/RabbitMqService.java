@@ -54,9 +54,19 @@ public class RabbitMqService {
 			.orElseThrow(() -> new DrawException(ExceptionCode.DRAW_NOT_FOUND));
 		UserDraw userDraw = userDrawRepository.save(
 			UserDraw.builder().userId(reqDto.getUserId()).drawId(reqDto.getDrawId()).build());
-		if (userDraw.getId() <= draw.getTotalWinner())
+
+		int winCount = userDrawRepository.countByDrawId(reqDto.getDrawId());
+
+		if (winCount <= draw.getTotalWinner())
 			userDraw.win();
 		log.info("Received UserDraw : {}, {}, {}", userDraw.getUserId(), userDraw.getDrawId(),
 			userDraw.isWin() ? "win" : "loose");
+	}
+
+	public boolean AmIWin(Long userId, Long drawId) throws InterruptedException {
+		Thread.sleep(100);
+		UserDraw userDraw = userDrawRepository.findByUserIdAndDrawId(userId, drawId).orElse(null);
+		if(userDraw == null) return false;
+		return userDraw.isWin();
 	}
 }

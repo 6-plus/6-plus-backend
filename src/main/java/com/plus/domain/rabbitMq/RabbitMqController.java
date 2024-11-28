@@ -20,10 +20,11 @@ public class RabbitMqController {
 	public ResponseEntity<String> saveUserDraw(
 		@RequestParam(name = "userId") Long userId,
 		@PathVariable Long drawId
-	) {
+	) throws InterruptedException {
 		rabbitMqService.saveUserDraw(UserDrawSaveReqDto.builder().userId(userId).drawId(drawId).build());
+		boolean isWin = rabbitMqService.AmIWin(userId, drawId);
 		return ResponseEntity
 			.status(HttpStatus.OK)
-			.body("Message sent to RabbitMQ");
+			.body(userId + "has " + isWin);
 	}
 }

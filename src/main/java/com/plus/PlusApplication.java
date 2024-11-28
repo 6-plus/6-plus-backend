@@ -35,7 +35,7 @@ public class PlusApplication {
 		RabbitMqService rabbitMqService) {
 		return args -> {
 
-			int userCount = 100, totalWinner = 1;
+			int userCount = 100, totalWinner = 10;
 
 			Draw draw = Draw.builder().totalWinner(totalWinner).build();
 			draw = drawRepository.save(draw);
@@ -52,7 +52,6 @@ public class PlusApplication {
 			Thread.sleep(1000);
 			for (UserDrawSaveReqDto userDrawSaveReqDto : userDrawSaveReqDtoList) {
 				executorsService.submit(() -> rabbitMqService.saveUserDraw(userDrawSaveReqDto));
-				Thread.sleep(1);
 			}
 		};
 	}
