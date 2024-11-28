@@ -16,4 +16,31 @@ public class PlusApplication {
 		SpringApplication.run(PlusApplication.class, args);
 	}
 
+	// @Bean
+	// public CommandLineRunner demo(DrawRepository drawRepository, UserRepository userRepository, UserDrawRepository userDrawRepository, RabbitMqService rabbitMqService, RabbitTemplate rabbitTemplate) {
+	// 	return args -> {
+	//
+	//
+	// 		int userCount = 30;
+	//
+	// 		Draw draw = Draw.builder().totalWinner(10).build();
+	// 		draw = drawRepository.save(draw);
+	// 		Long drawId = draw.getId();
+	//
+	// 		List<UserDrawSaveReqDto> userDrawSaveReqDtoList = new ArrayList<>();
+	// 		for(int i = 0; i < userCount; i++){
+	// 			User user = User.builder().nickname("user" + i).build();
+	// 			user = userRepository.save(user);
+	// 			userDrawSaveReqDtoList.add(UserDrawSaveReqDto.builder().userId(user.getId()).drawId(drawId).build());
+	// 		}
+	// 		ExecutorService executorsService = Executors.newFixedThreadPool(userCount);
+	//
+	// 		Thread.sleep(1000);
+	// 		for (UserDrawSaveReqDto userDrawSaveReqDto : userDrawSaveReqDtoList) {
+	// 			executorsService.submit(() -> rabbitMqService.saveUserDraw(userDrawSaveReqDto));
+	// 			Thread.sleep(1);
+	// 		}
+	// 	};
+	// }
+
 }
