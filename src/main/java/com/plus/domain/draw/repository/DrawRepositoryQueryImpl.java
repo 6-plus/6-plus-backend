@@ -49,7 +49,7 @@ public class DrawRepositoryQueryImpl implements DrawRepositoryQuery {
 		return jpaQueryFactory
 			.select(Projections.constructor(
 				DrawSearchResponseDto.class,
-				draw.id, draw.totalWinner, user.countDistinct(), draw.startTime, draw.endTime, draw.resultTime,
+				draw.id, draw.maxWinnerCount, user.countDistinct(), draw.startTime, draw.endTime, draw.resultTime,
 				draw.drawType, draw.product
 			))
 			.from(userDraw)
@@ -60,7 +60,6 @@ public class DrawRepositoryQueryImpl implements DrawRepositoryQuery {
 			.offset((long)(page - 1) * size)
 			.limit(size);
 	}
-
 
 	private BooleanExpression productNameEq(String productName) {
 		return Objects.nonNull(productName) ? draw.product.productName.eq(productName) : null;
@@ -77,8 +76,8 @@ public class DrawRepositoryQueryImpl implements DrawRepositoryQuery {
 	private OrderSpecifier<?> getOrderSpecifier(SortBy sortBy) {
 		return switch (sortBy) {
 			case END_TIME_DEC -> draw.endTime.desc();
-			case TOTAL_WINNERS_DEC -> draw.totalWinner.desc();
-			case TOTAL_WINNERS_ASC -> draw.totalWinner.asc();
+			case TOTAL_WINNERS_DEC -> draw.maxWinnerCount.desc();
+			case TOTAL_WINNERS_ASC -> draw.maxWinnerCount.asc();
 			case APPLICANTS_DEC -> user.countDistinct().desc();
 			case APPLICANTS_ASC -> user.countDistinct().asc();
 		};

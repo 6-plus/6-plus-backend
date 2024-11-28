@@ -1,14 +1,15 @@
 package com.plus.domain.user.dto.response;
 
+import java.time.LocalDateTime;
+
 import com.plus.domain.draw.entity.Draw;
 import com.plus.domain.draw.entity.Product;
 import com.plus.domain.draw.enums.DrawType;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 public class FavoriteSearchResponseDto {
 
 	private Long id;
-	private Integer totalWinners;
+	private Integer maxWinnerCount;
 	private LocalDateTime startTime;
 	private LocalDateTime endTime;
 	private LocalDateTime resultTime;
@@ -27,7 +28,7 @@ public class FavoriteSearchResponseDto {
 	public static FavoriteSearchResponseDto from(Draw draw) {
 		return FavoriteSearchResponseDto.builder()
 			.id(draw.getId())
-			.totalWinners(draw.getTotalWinner())
+			.maxWinnerCount(draw.getMaxWinnerCount())
 			.startTime(draw.getStartTime())
 			.endTime(draw.getEndTime())
 			.resultTime(draw.getResultTime())

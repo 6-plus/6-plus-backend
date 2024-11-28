@@ -12,7 +12,7 @@ import lombok.Getter;
 public class DrawUpdateResponseDto {
 	private Long id;
 
-	private Integer totalWinner;
+	private Integer maxWinnerCount;
 
 	private LocalDateTime startTime;
 
@@ -30,7 +30,7 @@ public class DrawUpdateResponseDto {
 
 	public DrawUpdateResponseDto(Draw draw) {
 		this.id = draw.getId();
-		this.totalWinner = draw.getTotalWinner();
+		this.maxWinnerCount = draw.getMaxWinnerCount();
 		this.startTime = draw.getStartTime();
 		this.endTime = draw.getEndTime();
 		this.resultTime = draw.getResultTime();

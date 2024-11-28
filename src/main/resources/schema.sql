@@ -13,17 +13,18 @@ CREATE TABLE IF NOT EXISTS user
 
 CREATE TABLE IF NOT EXISTS draw
 (
-    id                  BIGINT NOT NULL AUTO_INCREMENT,
-    created_at          DATETIME(6),
-    updated_at          DATETIME(6),
-    draw_type           ENUM ('FIRST_COME', 'PERIOD'),
-    end_time            DATETIME(6),
-    product_description VARCHAR(255),
-    product_image       VARCHAR(255),
-    product_name        VARCHAR(255),
-    result_time         DATETIME(6),
-    start_time          DATETIME(6),
-    total_winner        INT,
+    id                   BIGINT NOT NULL AUTO_INCREMENT,
+    created_at           DATETIME(6),
+    updated_at           DATETIME(6),
+    draw_type            ENUM ('FIRST_COME', 'PERIOD'),
+    end_time             DATETIME(6),
+    product_description  VARCHAR(255),
+    product_image        VARCHAR(255),
+    product_name         VARCHAR(255),
+    result_time          DATETIME(6),
+    start_time           DATETIME(6),
+    max_winner_count     INT,
+    current_winner_count INT DEFAULT 0,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB;
 

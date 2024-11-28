@@ -21,6 +21,7 @@ public enum ExceptionCode {
 	DRAW_NOT_FOUND(HttpStatus.BAD_REQUEST, "응모가 존재하지 않습니다."),
 	FILE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일을 삭제할 수 없습니다."),
 	INVALID_FILE_URL(HttpStatus.BAD_REQUEST, "파일을 삭제할 수 없습니다."),
+	ALREADY_EXISTS_DRAW_USER(HttpStatus.BAD_REQUEST, "이미 응모한 유저입니다."),
 
 	// Auth Exception
 	DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "이미 존재하는 이메일입니다."),

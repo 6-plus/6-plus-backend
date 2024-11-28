@@ -1,5 +1,7 @@
 package com.plus.domain.draw.service;
 
+import static com.plus.domain.common.exception.enums.ExceptionCode.*;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.plus.domain.common.exception.DrawException;
 import com.plus.domain.common.exception.ExpectedException;
 import com.plus.domain.common.exception.enums.ExceptionCode;
 import com.plus.domain.draw.dto.request.DrawSaveRequestDto;
@@ -16,11 +19,15 @@ import com.plus.domain.draw.dto.request.DrawUpdateRequestDto;
 import com.plus.domain.draw.dto.response.DrawSaveResponseDto;
 import com.plus.domain.draw.dto.response.DrawSearchResponseDto;
 import com.plus.domain.draw.dto.response.DrawUpdateResponseDto;
+import com.plus.domain.draw.dto.response.EntryResultResponseDto;
 import com.plus.domain.draw.entity.Draw;
 import com.plus.domain.draw.entity.Product;
+import com.plus.domain.draw.entity.UserDraw;
 import com.plus.domain.draw.enums.DrawStatus;
+import com.plus.domain.draw.enums.EntryResultStatus;
 import com.plus.domain.draw.enums.SortBy;
 import com.plus.domain.draw.repository.DrawRepository;
+import com.plus.domain.draw.repository.UserDrawRepository;
 import com.plus.domain.notification.service.NotificationService;
 import com.plus.domain.user.entity.User;
 import com.plus.domain.user.enums.UserRole;
@@ -35,6 +42,7 @@ public class DrawService {
 	private final DrawRepository drawRepository;
 	private final S3Service s3Service;
 	private final UserRepository userRepository;
+	private final UserDrawRepository userDrawRepository;
 	private final NotificationService notificationService;
 
 	@Transactional
@@ -58,7 +66,7 @@ public class DrawService {
 
 		//save 로직
 		Draw draw = Draw.builder()
-			.totalWinner(requestDto.getTotalWinners())
+			.maxWinnerCount(requestDto.getTotalWinners())
 			.startTime(requestDto.getStartTime())
 			.endTime(requestDto.getEndTime())
 			.resultTime(requestDto.getResultTime())
@@ -104,7 +112,7 @@ public class DrawService {
 
 		// 기존 응모 데이터 조회
 		Draw draw = drawRepository.findById(drawId)
-			.orElseThrow(() -> new ExpectedException(ExceptionCode.DRAW_NOT_FOUND));
+			.orElseThrow(() -> new ExpectedException(DRAW_NOT_FOUND));
 
 		// 응모 제품명 중복 확인 (본인의 제품 제외)
 		if (!draw.getProduct().getProductName().equals(requestDto.getProduct().getProductName()) &&
@@ -123,7 +131,7 @@ public class DrawService {
 		}
 
 		// 수정 로직: Draw 엔티티의 필드 업데이트
-		draw.setTotalWinner(requestDto.getTotalWinners());
+		draw.setMaxWinnerCount(requestDto.getTotalWinners());
 		draw.setStartTime(requestDto.getStartTime());
 		draw.setEndTime(requestDto.getEndTime());
 		draw.setResultTime(requestDto.getResultTime());
@@ -146,7 +154,7 @@ public class DrawService {
 	public void deleteDraw(Long userId, Long drawId) {
 		// Draw 엔티티 확인
 		Draw draw = drawRepository.findById(drawId)
-			.orElseThrow(() -> new ExpectedException(ExceptionCode.DRAW_NOT_FOUND));
+			.orElseThrow(() -> new ExpectedException(DRAW_NOT_FOUND));
 
 		// User 권한 확인
 		User user = userRepository.findById(userId)
@@ -163,5 +171,22 @@ public class DrawService {
 		// 데이터베이스에서 Draw 삭제
 		drawRepository.delete(draw);
 
+	}
+
+	@Transactional
+	public EntryResultResponseDto entry(Long drawId, Long userId) {
+		if (userDrawRepository.existsByUserIdAndDrawId(drawId, userId)) {
+			throw new DrawException(ALREADY_EXISTS_DRAW_USER);
+		}
+		Draw draw = drawRepository.findByIdForUpdate(drawId)
+			.orElseThrow(() -> new DrawException(DRAW_NOT_FOUND));
+		if (draw.isDrawClosed()) {
+			return new EntryResultResponseDto(EntryResultStatus.FAIL);
+		}
+		draw.increaseCurrentWinnerCount();
+		UserDraw userDraw = UserDraw.createSuccessUserDraw(drawId, userId);
+		userDrawRepository.save(userDraw);
+		drawRepository.save(draw);
+		return new EntryResultResponseDto(EntryResultStatus.SUCCESS);
 	}
 }

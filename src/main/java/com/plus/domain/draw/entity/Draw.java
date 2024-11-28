@@ -26,7 +26,8 @@ public class Draw extends BaseTimestamped {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private Integer totalWinner;
+	private Integer maxWinnerCount;
+	private Integer currentWinnerCount;
 	private LocalDateTime startTime;
 	private LocalDateTime endTime;
 	private LocalDateTime resultTime;
@@ -38,7 +39,7 @@ public class Draw extends BaseTimestamped {
 	@Builder
 	public Draw(
 		Long id,
-		Integer totalWinner,
+		Integer maxWinnerCount,
 		LocalDateTime startTime,
 		LocalDateTime endTime,
 		LocalDateTime resultTime,
@@ -46,11 +47,19 @@ public class Draw extends BaseTimestamped {
 		Product product
 	) {
 		this.id = id;
-		this.totalWinner = totalWinner;
+		this.maxWinnerCount = maxWinnerCount;
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.resultTime = resultTime;
 		this.drawType = drawType;
 		this.product = product;
+	}
+
+	public boolean isDrawClosed() {
+		return this.maxWinnerCount <= this.currentWinnerCount;
+	}
+
+	public void increaseCurrentWinnerCount() {
+		this.currentWinnerCount++;
 	}
 }
