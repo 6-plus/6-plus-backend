@@ -1,6 +1,8 @@
 package com.plus.domain.draw.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class UserDraw {
 
@@ -20,9 +22,21 @@ public class UserDraw {
 	private Long id;
 	private Long userId;
 	private Long drawId;
-	private boolean win;
+	private boolean win = false;
 	@CreatedDate
 	@Column(updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private LocalDateTime createdAt;
+
+	@Builder
+	public UserDraw(Long id, Long userId, Long drawId, boolean win) {
+		this.id = id;
+		this.userId = userId;
+		this.drawId = drawId;
+		this.win = win;
+	}
+
+	public void win() {
+		this.win = true;
+	}
 }
