@@ -4,14 +4,11 @@ package com.plus.domain.draw.service;
 import com.plus.domain.draw.dto.response.EntrySaveResponseDto;
 import com.plus.domain.draw.entity.UserDraw;
 import com.plus.domain.draw.entity.UserDrawLock;
-import com.plus.domain.draw.repository.DrawRepository;
 import com.plus.domain.draw.repository.UserDrawLcokRepository;
 import com.plus.domain.draw.repository.UserDrawRepository;
 import com.plus.domain.security.UserDetailsImpl;
-import com.plus.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -22,14 +19,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EntryService {
 
-	private final DrawRepository drawRepository;
-	private final UserRepository userRepository;
+
 	private final UserDrawRepository userDrawRepository;
 	private final UserDrawLcokRepository userDrawLcokRepository;
 
 
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public EntrySaveResponseDto saveEntry(Long drawId, UserDetailsImpl userDetails) {
+
 		final int MAX_RETRY_TIME_MS = 5000; // 최대 대기 시간: 5초
 		final int RETRY_INTERVAL_MS = 100; // 재시도 간격: 100ms
 

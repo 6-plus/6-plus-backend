@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Transactional
 @SpringBootTest
 class EntryServiceTest {
 
@@ -32,7 +33,6 @@ class EntryServiceTest {
 	private UserDrawRepository userDrawRepository;
 
 	@Test
-	@Transactional
 	void testSaveEntry_Success() {
 		// given
 		Long drawId = 1L;
