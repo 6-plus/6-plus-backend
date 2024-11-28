@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.plus.domain.common.exception.ExpectedException;
 import com.plus.domain.draw.dto.request.DrawSaveRequestDto;
 import com.plus.domain.draw.dto.request.DrawSearchRequestDto;
 import com.plus.domain.draw.dto.request.DrawUpdateRequestDto;
@@ -90,4 +91,21 @@ public class DrawController {
 			.status(HttpStatus.OK)
 			.body(drawService.searchDraws(requestDto, page, size));
 	}
+
+	@PostMapping("/{drawId}/apply")
+	public ResponseEntity<String> applyDraw(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable Long drawId
+	) {
+		try {
+			String result = drawService.applyDraw(userDetails.getUser().getId(), drawId);
+			return ResponseEntity.ok(result);
+		} catch (ExpectedException e) {
+			return ResponseEntity.status(409).body(e.getMessage());
+		} catch (Exception e) {
+			// 알 수 없는 에러에 대해 500 응답
+			return ResponseEntity.status(500).body("응모 처리 중 오류가 발생했습니다.");
+		}
+	}
+
 }

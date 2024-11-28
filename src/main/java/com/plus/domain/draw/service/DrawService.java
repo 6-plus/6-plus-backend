@@ -3,7 +3,11 @@ package com.plus.domain.draw.service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,9 +22,11 @@ import com.plus.domain.draw.dto.response.DrawSearchResponseDto;
 import com.plus.domain.draw.dto.response.DrawUpdateResponseDto;
 import com.plus.domain.draw.entity.Draw;
 import com.plus.domain.draw.entity.Product;
+import com.plus.domain.draw.entity.UserDraw;
 import com.plus.domain.draw.enums.DrawStatus;
 import com.plus.domain.draw.enums.SortBy;
 import com.plus.domain.draw.repository.DrawRepository;
+import com.plus.domain.draw.repository.UserDrawRepository;
 import com.plus.domain.notification.service.NotificationService;
 import com.plus.domain.user.entity.User;
 import com.plus.domain.user.enums.UserRole;
@@ -36,6 +42,9 @@ public class DrawService {
 	private final S3Service s3Service;
 	private final UserRepository userRepository;
 	private final NotificationService notificationService;
+	private final RedissonClient redissonClient;
+	private final RedisTemplate redisTemplate;
+	private final UserDrawRepository userDrawRepository;
 
 	@Transactional
 	public DrawSaveResponseDto saveDraw(Long userid, DrawSaveRequestDto requestDto, MultipartFile image) throws
@@ -164,4 +173,59 @@ public class DrawService {
 		drawRepository.delete(draw);
 
 	}
+
+	@Transactional
+	public String applyDraw(Long userId, Long drawId) {
+		String lockKey = "draw:" + drawId;
+		RLock lock = redissonClient.getLock(lockKey);
+
+		try {
+			if (lock.tryLock(5, 10, TimeUnit.SECONDS)) {
+				System.out.println("락 획득: 응모 신청 처리 중...");
+
+				// 1. Draw 테이블에서 totalWinner 값 가져오기
+				Draw draw = drawRepository.findById(drawId)
+					.orElseThrow(() -> new ExpectedException(ExceptionCode.DRAW_NOT_FOUND));
+				int totalWinner = draw.getTotalWinner();
+
+				// 2. Redis Sorted Set 키 생성
+				String redisKey = "draw:" + drawId + ":participants";
+				double currentTimestamp = System.currentTimeMillis();
+
+				// 3. 이미 응모했는지 확인
+				if (redisTemplate.opsForZSet().score(redisKey, userId.toString()) != null) {
+					throw new ExpectedException(ExceptionCode.ALREADY_APPLIED);
+				}
+
+				// 4. 응모 인원이 초과했는지 확인 - atomic하게 처리
+				Long currentSize = redisTemplate.opsForZSet().size(redisKey);
+				if (currentSize != null && currentSize >= totalWinner) {
+					throw new ExpectedException(ExceptionCode.MAXIMUM_PARTICIPANTS_REACHED);
+				}
+
+				// 5. 응모 성공: 사용자 추가 - atomic하게 처리
+				redisTemplate.opsForZSet().add(redisKey, userId.toString(), currentTimestamp);
+
+				// 6. DB에 응모 정보 저장
+				UserDraw userDraw = new UserDraw();
+				userDraw.setUserId(userId);
+				userDraw.setDrawId(drawId);
+				userDraw.setWin(true); // 기본값으로 비당첨 설정
+				userDrawRepository.save(userDraw);
+
+				System.out.println("응모 성공! DB에 저장 완료");
+				return "응모 성공!";
+			} else {
+				throw new ExpectedException(ExceptionCode.LOCK_ACQUISITION_FAILED);
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ExpectedException(ExceptionCode.INTERNAL_SERVER_ERROR);
+		} finally {
+			if (lock.isHeldByCurrentThread()) {
+				lock.unlock();
+			}
+		}
+	}
+
 }
