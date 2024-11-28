@@ -1,5 +1,6 @@
 package com.plus.domain.rabbitMq;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +21,9 @@ public class RabbitMqController {
 		@RequestParam(name = "userId") Long userId,
 		@PathVariable Long drawId
 	) {
-		this.rabbitMqService.saveUserDraw(UserDrawSaveReqDto.builder().userId(userId).drawId(drawId).build());
-		return ResponseEntity.ok("Message sent to RabbitMQ");
+		rabbitMqService.saveUserDraw(UserDrawSaveReqDto.builder().userId(userId).drawId(drawId).build());
+		return ResponseEntity
+			.status(HttpStatus.OK)
+			.body("Message sent to RabbitMQ");
 	}
 }

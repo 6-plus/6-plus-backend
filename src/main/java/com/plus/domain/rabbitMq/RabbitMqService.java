@@ -40,7 +40,7 @@ public class RabbitMqService {
 	 * 2. Producer 역할 -> Direct Exchange 전략
 	 **/
 	public void saveUserDraw(UserDrawSaveReqDto reqDto) {
-		this.rabbitTemplate.convertAndSend(exchangeName, routingKey, reqDto);
+		rabbitTemplate.convertAndSend(exchangeName, routingKey, reqDto);
 		log.info("UserDraw send: {}, {}", reqDto.getUserId(), reqDto.getDrawId());
 	}
 
