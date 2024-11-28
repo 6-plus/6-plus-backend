@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +40,6 @@ public class DrawService {
 	private final S3Service s3Service;
 	private final UserRepository userRepository;
 	private final NotificationService notificationService;
-	private final RedissonClient redissonClient;
 	private final RedisTemplate redisTemplate;
 	private final UserDrawRepository userDrawRepository;
 
@@ -177,54 +174,44 @@ public class DrawService {
 	@Transactional
 	public String applyDraw(Long userId, Long drawId) {
 		String lockKey = "draw:" + drawId;
-		RLock lock = redissonClient.getLock(lockKey);
+		String lockValue = String.valueOf(userId);
 
 		try {
-			if (lock.tryLock(5, 10, TimeUnit.SECONDS)) {
-				System.out.println("락 획득: 응모 신청 처리 중...");
-
-				// 1. Draw 테이블에서 totalWinner 값 가져오기
-				Draw draw = drawRepository.findById(drawId)
-					.orElseThrow(() -> new ExpectedException(ExceptionCode.DRAW_NOT_FOUND));
-				int totalWinner = draw.getTotalWinner();
-
-				// 2. Redis Sorted Set 키 생성
-				String redisKey = "draw:" + drawId + ":participants";
-				double currentTimestamp = System.currentTimeMillis();
-
-				// 3. 이미 응모했는지 확인
-				if (redisTemplate.opsForZSet().score(redisKey, userId.toString()) != null) {
-					throw new ExpectedException(ExceptionCode.ALREADY_APPLIED);
-				}
-
-				// 4. 응모 인원이 초과했는지 확인 - atomic하게 처리
-				Long currentSize = redisTemplate.opsForZSet().size(redisKey);
-				if (currentSize != null && currentSize >= totalWinner) {
-					throw new ExpectedException(ExceptionCode.MAXIMUM_PARTICIPANTS_REACHED);
-				}
-
-				// 5. 응모 성공: 사용자 추가 - atomic하게 처리
-				redisTemplate.opsForZSet().add(redisKey, userId.toString(), currentTimestamp);
-
-				// 6. DB에 응모 정보 저장
-				UserDraw userDraw = new UserDraw();
-				userDraw.setUserId(userId);
-				userDraw.setDrawId(drawId);
-				userDraw.setWin(true); // 기본값으로 비당첨 설정
-				userDrawRepository.save(userDraw);
-
-				System.out.println("응모 성공! DB에 저장 완료");
-				return "응모 성공!";
-			} else {
-				throw new ExpectedException(ExceptionCode.LOCK_ACQUISITION_FAILED);
+			// 락을 얻기 위한 시도: SETNX (set if not exists)
+			while (!redisTemplate.opsForValue().setIfAbsent(lockKey, lockValue, 1000, TimeUnit.SECONDS)) {
+				Thread.sleep(100);
 			}
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
+			System.out.println("락 획득: 응모 신청 처리 중...");
+			// 4. 이미 응모했는지 확인
+			if (userDrawRepository.existsByUserIdAndDrawId(userId, drawId)) {
+				throw new ExpectedException(ExceptionCode.ALREADY_APPLIED);
+			}
+			// 1. Draw 테이블에서 totalWinner 값 가져오기
+			Draw draw = drawRepository.findById(drawId)
+				.orElseThrow(() -> new ExpectedException(ExceptionCode.DRAW_NOT_FOUND));
+			int totalWinner = draw.getTotalWinner();
+			// 2. DB에서 당첨된 인원 수 확인
+			long winnersCount = userDrawRepository.countByDrawIdAndWin(drawId, true);
+
+			// 3. 당첨된 인원 수가 최대 인원 수를 초과한 경우 예외 처리
+			if (winnersCount >= totalWinner) {
+				throw new ExpectedException(ExceptionCode.MAXIMUM_PARTICIPANTS_REACHED);
+			}
+			// 6. DB에 응모 정보 저장
+			UserDraw userDraw = new UserDraw();
+			userDraw.setUserId(userId);
+			userDraw.setDrawId(drawId);
+			userDraw.setWin(true); // 기본값으로 비당첨 설정
+			userDrawRepository.save(userDraw);
+			System.out.println("응모 성공! DB에 저장 완료");
+			return "응모 성공!";
+		} catch (Exception e) {
 			throw new ExpectedException(ExceptionCode.INTERNAL_SERVER_ERROR);
 		} finally {
-			if (lock.isHeldByCurrentThread()) {
-				lock.unlock();
-			}
+			// 락 해제
+			// if (lockValue.equals(redisTemplate.opsForValue().get(lockKey))) {
+			redisTemplate.delete(lockKey);  // 락 키 삭제
+			// }
 		}
 	}
 
