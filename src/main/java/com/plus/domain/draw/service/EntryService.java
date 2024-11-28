@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -34,8 +34,8 @@ public class EntryService {
 
 		// 락 확인 및 재시도
 		while (true) {
-			List<UserDrawLock> all = userDrawLcokRepository.findAll();
-			if (all.isEmpty()) {
+			Optional<UserDrawLock> byId = userDrawLcokRepository.findById(drawId);
+			if (byId.isEmpty()) {
 				break; // 락이 없으면 작업 진행
 			}
 
@@ -53,6 +53,7 @@ public class EntryService {
 
 		// 락 생성
 		userDrawLcokRepository.saveAndFlush(UserDrawLock.builder()
+			.lockId(drawId)
 			.createdAt(LocalDateTime.now())
 			.build());
 
