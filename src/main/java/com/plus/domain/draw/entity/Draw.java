@@ -27,7 +27,7 @@ public class Draw extends BaseTimestamped {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private Integer maxWinnerCount;
-	private Integer currentWinnerCount;
+	private Integer currentWinnerCount = 0;
 	private LocalDateTime startTime;
 	private LocalDateTime endTime;
 	private LocalDateTime resultTime;

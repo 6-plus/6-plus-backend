@@ -28,6 +28,7 @@ import com.plus.domain.draw.dto.response.DrawUpdateResponseDto;
 import com.plus.domain.draw.dto.response.EntryResultResponseDto;
 import com.plus.domain.draw.service.DrawService;
 import com.plus.domain.security.UserDetailsImpl;
+import com.plus.lock.service.LockService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 public class DrawController {
 
 	private final DrawService drawService;
+	private final LockService lockService;
 
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<DrawSaveResponseDto> saveDraw(
@@ -97,10 +99,13 @@ public class DrawController {
 		@PathVariable Long drawId,
 		@AuthenticationPrincipal UserDetailsImpl user
 	) {
-		// POST/api/draws/{drawId}/entries 로 요청이 들어온다.
 		Long userId = user.getUser().getId();
+		EntryResultResponseDto response = lockService.process(
+			"user-entry-" + drawId,
+			2,
+			() -> drawService.entry(drawId, userId));
 		return ResponseEntity
 			.status(HttpStatus.OK)
-			.body(drawService.entry(drawId, userId));
+			.body(response);
 	}
 }

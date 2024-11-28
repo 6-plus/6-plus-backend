@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -173,12 +174,12 @@ public class DrawService {
 
 	}
 
-	@Transactional
+	@Transactional(timeout = 10, propagation = Propagation.REQUIRES_NEW)
 	public EntryResultResponseDto entry(Long drawId, Long userId) {
 		if (userDrawRepository.existsByUserIdAndDrawId(drawId, userId)) {
 			throw new DrawException(ALREADY_EXISTS_DRAW_USER);
 		}
-		Draw draw = drawRepository.findByIdForUpdate(drawId)
+		Draw draw = drawRepository.findById(drawId)
 			.orElseThrow(() -> new DrawException(DRAW_NOT_FOUND));
 		if (draw.isDrawClosed()) {
 			return new EntryResultResponseDto(EntryResultStatus.FAIL);
