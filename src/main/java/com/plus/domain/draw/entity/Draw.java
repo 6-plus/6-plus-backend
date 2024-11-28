@@ -27,6 +27,7 @@ public class Draw extends BaseTimestamped {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private Integer totalWinner;
+	private Integer currentApplicants;
 	private LocalDateTime startTime;
 	private LocalDateTime endTime;
 	private LocalDateTime resultTime;
@@ -39,6 +40,7 @@ public class Draw extends BaseTimestamped {
 	public Draw(
 		Long id,
 		Integer totalWinner,
+		Integer currentApplicants,
 		LocalDateTime startTime,
 		LocalDateTime endTime,
 		LocalDateTime resultTime,
@@ -47,6 +49,7 @@ public class Draw extends BaseTimestamped {
 	) {
 		this.id = id;
 		this.totalWinner = totalWinner;
+		this.currentApplicants = currentApplicants;
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.resultTime = resultTime;

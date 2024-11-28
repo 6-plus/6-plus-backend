@@ -68,6 +68,7 @@ public class DrawService {
 				requestDto.getProduct().getProductDescription(),
 				imageUrl
 			))
+			.currentApplicants(0) //// currentApplicants를 0으로 명시적으로 설정
 			.build();
 
 		draw = drawRepository.save(draw);

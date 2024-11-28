@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS draw
     result_time         DATETIME(6),
     start_time          DATETIME(6),
     total_winner        INT,
+    current_applicants  INT, -- 현재 응모인원 추가
     PRIMARY KEY (id)
 ) ENGINE = InnoDB;
 
