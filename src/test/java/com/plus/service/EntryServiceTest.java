@@ -72,7 +72,7 @@ class EntryServiceTest {
 		// given
 		int threadCount = 10;
 		Long drawId = 1L;
-		CountDownLatch latch = new CountDownLatch(threadCount);
+		CountDownLatch latch = new CountDownLatch(threadCount);//스레드가 모두 종료될 때까지 대기
 		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
 		// Lock 초기화

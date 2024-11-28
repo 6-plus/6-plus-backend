@@ -26,6 +26,6 @@ public class UserDrawLock {
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt; // 생성 시점, 자동 설정
 
-	@Column(name = "expires_at", nullable = false)
+	@Column(name = "expires_at")
 	private LocalDateTime expiresAt; // 만료 시점
 }

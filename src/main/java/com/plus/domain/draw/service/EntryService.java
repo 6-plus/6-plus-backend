@@ -11,6 +11,7 @@ import com.plus.domain.security.UserDetailsImpl;
 import com.plus.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -26,7 +27,8 @@ public class EntryService {
 	private final UserDrawRepository userDrawRepository;
 	private final UserDrawLcokRepository userDrawLcokRepository;
 
-	@Transactional
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public EntrySaveResponseDto saveEntry(Long drawId, UserDetailsImpl userDetails) {
 		final int MAX_RETRY_TIME_MS = 5000; // 최대 대기 시간: 5초
 		final int RETRY_INTERVAL_MS = 100; // 재시도 간격: 100ms
@@ -53,7 +55,7 @@ public class EntryService {
 		}
 
 		// 락 생성
-		userDrawLcokRepository.save(UserDrawLock.builder()
+		userDrawLcokRepository.saveAndFlush(UserDrawLock.builder()
 			.createdAt(LocalDateTime.now())
 			.build());
 
