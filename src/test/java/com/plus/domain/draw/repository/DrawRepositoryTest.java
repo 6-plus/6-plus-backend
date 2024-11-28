@@ -17,8 +17,6 @@ import com.plus.domain.draw.Exception.ApplicationFullException;
 import com.plus.domain.draw.entity.Draw;
 import com.plus.domain.draw.service.UserDrawService;
 
-import jakarta.transaction.Transactional;
-
 @SpringBootTest
 public class DrawRepositoryTest {
 
@@ -31,7 +29,6 @@ public class DrawRepositoryTest {
 	private UserDrawRepository userDrawRepository;
 
 	@Test
-	@Transactional
 	public void testConcurrentApply() throws InterruptedException {
 		// Given: Draw 객체 생성 및 저장
 		Draw draw = Draw.builder()
@@ -40,7 +37,7 @@ public class DrawRepositoryTest {
 			.build();
 		Draw savedDraw = drawRepository.save(draw);
 
-		int numberOfThreads = 1;
+		int numberOfThreads = 15;
 		ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
 		AtomicInteger successCount = new AtomicInteger(0);
 		AtomicLong userId = new AtomicLong();
@@ -49,8 +46,10 @@ public class DrawRepositoryTest {
 
 			executorService.submit(() -> {
 				try {
-					userDrawService.apply(savedDraw.getId(), userId.incrementAndGet());
-					successCount.incrementAndGet();  // 응모 성공한 경우 카운트 증가
+					synchronized (savedDraw) {
+						userDrawService.apply(savedDraw.getId(), userId.incrementAndGet());
+						successCount.incrementAndGet();  // 응모 성공한 경우 카운트 증가
+					}
 				} catch (ApplicationFullException | AlreadyAppliedException e) {
 					// 응모 실패한 경우는 예외를 던지므로 성공 카운트 증가하지 않음
 				}

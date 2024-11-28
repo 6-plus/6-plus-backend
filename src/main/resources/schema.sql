@@ -72,7 +72,8 @@ CREATE TABLE IF NOT EXISTS user_draw
         ON UPDATE CASCADE,
     FOREIGN KEY (draw_id) REFERENCES draw (id)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    UNIQUE (user_id, draw_id)
 ) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS favorite_draw
