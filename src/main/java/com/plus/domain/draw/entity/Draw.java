@@ -27,6 +27,7 @@ public class Draw extends BaseTimestamped {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private Integer totalWinner;
+	private Integer applicant = 0;
 	private LocalDateTime startTime;
 	private LocalDateTime endTime;
 	private LocalDateTime resultTime;
@@ -52,5 +53,9 @@ public class Draw extends BaseTimestamped {
 		this.resultTime = resultTime;
 		this.drawType = drawType;
 		this.product = product;
+	}
+
+	public void counting() {
+		this.applicant = this.applicant+1;
 	}
 }

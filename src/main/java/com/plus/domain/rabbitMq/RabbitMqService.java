@@ -35,18 +35,11 @@ public class RabbitMqService {
 
 	private final RabbitTemplate rabbitTemplate;
 
-	/**
-	 * 1. Queue 로 메세지를 발행
-	 * 2. Producer 역할 -> Direct Exchange 전략
-	 **/
 	public void saveUserDraw(UserDrawSaveReqDto reqDto) {
 		rabbitTemplate.convertAndSend(exchangeName, routingKey, reqDto);
 		log.info("UserDraw send: {}, {}", reqDto.getUserId(), reqDto.getDrawId());
 	}
 
-	/**
-	 * 1. Queue 에서 메세지를 구독
-	 **/
 	@RabbitListener(queues = "${rabbitmq.queue.name}")
 	@Transactional
 	public void receiveMessage(UserDrawSaveReqDto reqDto) {
@@ -55,10 +48,12 @@ public class RabbitMqService {
 		UserDraw userDraw = userDrawRepository.save(
 			UserDraw.builder().userId(reqDto.getUserId()).drawId(reqDto.getDrawId()).build());
 
-		int winCount = userDrawRepository.countByDrawId(reqDto.getDrawId());
+		draw.counting();
+		int applicantCount = draw.getApplicant();
 
-		if (winCount <= draw.getTotalWinner())
+		if (applicantCount <= draw.getTotalWinner()) {
 			userDraw.win();
+		}
 		log.info("Received UserDraw : {}, {}, {}", userDraw.getUserId(), userDraw.getDrawId(),
 			userDraw.isWin() ? "win" : "loose");
 	}
