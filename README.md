@@ -95,3 +95,28 @@
 ### ERD
 ![image](https://github.com/user-attachments/assets/b353bd62-023a-42d7-81c4-60d961d21c46)
 
+### 포로젝트 구조
+```
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com.plus
+│   │   │       ├── config        
+│   │   │       │   ├── QuerydslConfiguration  # Querydsl 설정
+│   │   │       │   ├── S3Config               # AWS 설정
+│   │   │       └──domain                      # 주요 도메인별 패키지
+│   │   │           ├── auth                   # 회원가입/로그인 관리
+│   │   │           ├── common                 # exception / BaseTimestamped 관련 패키지
+│   │   │           ├── darw                   # 응모 관리
+│   │   │           ├── notification           # 알림 관리
+│   │   │           ├── review                 # 리뷰 관리
+│   │   │           ├── security               # spring security 설정
+│   │   │           └── user                   # 회원 관리
+│   │    resources
+│   └── test
+│       └── java
+│           └── com.plus
+│               └── test                       # 동시성 제어 테스트
+└──PlusApplicationTests.java
+```
+
